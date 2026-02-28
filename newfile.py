@@ -9,7 +9,8 @@ razk = 50 # Размер клетки
 razch = round(razk/3) # Размер цифр
 kcolor = "gray" # Цвет клеток
 kcl_color = "white" # Цвет чистой клетки
-k_obv = "green" # Цвет активной обводки
+k_obv = "red" # Цвет активной обводки
+k_flag = "green" # Цвет флага
 first_click = 0 # Проверка первого клика
 
 nrow = 8 # Текущая строка
@@ -17,18 +18,43 @@ ncol = 8 # Текущая колонка
 
 nnmbr = 0
 
-dif = 5 # Сложность
+dif = 1 # Сложность
 idif = 11 - dif # Инвертированная сложность
 
-matrix = [] # Матрица мин
-matrix_opn = [] # Матрица открытых клеток
+matrix = [] # Матрица мин 
 
-# Создаём матрицу открытых пклеток
+
+# Создаём матрицу открытых клеток
+matrix_opn = [] # Матрица открытых клеток
 for i in range(rows):
     row = []
     for j in range(cols):
         row.append(0)
-    matrix_opn.append(row) 
+    matrix_opn.append(row)
+    
+# Создаём матрицу флагов
+matrix_flag = [] # Матрица флагов
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        row.append(0)
+    matrix_flag.append(row)
+
+# Матрица победы
+matrix_win = [] 
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        row.append(0)
+    matrix_win.append(row)
+
+# Матрица победы для сравнения
+matrix_win2 = [] 
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        row.append(1)
+    matrix_win2.append(row)
 
 # Создаем основное окно
 root = tk.Tk()
@@ -154,26 +180,28 @@ def mdown():
 def draw_text(col, row, char):
     x = (col * (razk + 1) - razk + 1) + (razk / 2)
     y = (row * (razk + 1) - razk + 1) + (razk / 2)
-    canvas.create_text(x, y, text=str(char), font=("Arial", razch,"bold"), fill="black")
+    if char == "M":
+        color = "red"
+    elif char == "🚩":
+        color = k_flag
+    elif int(char) == 1:
+        color = "blue"
+    elif int(char) == 2:
+        color = "green"
+    elif int(char) == 3:
+        color = "red"
+    elif int(char) == 4:
+        color = "navy"        
+    elif int(char) == 5:
+        color = "maroon"      
+    elif int(char) == 6:
+        color = "turquoise"  
+    elif int(char) == 7:
+        color = "black"
+    elif int(char) == 8:
+        color = "gray"
+    canvas.create_text(x, y, text=str(char), font=("Arial", razch,"bold"), fill=color)
 
-# Открытие мины
-def mopen():
-    global nrow, ncol, first_click
-    if first_click == 0:
-        matrix[ncol-1][nrow-1] = 0
-        first_click += 1
-    x1 = ncol * (razk + 1) - razk + 1
-    y1 = nrow * (razk + 1) - razk + 1
-    canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcl_color)
-    if matrix[ncol-1][nrow-1] == 1:
-        draw_text(ncol, nrow, "М")
-    else:
-        if know(ncol, nrow) == 0:
-            print("Пусто")
-        else:
-            draw_text(ncol, nrow, know(ncol, nrow))
-    
-        
 # Алгоритм открывания и рекурсия
 def open_cell(x, y):
     if x < 1 or x > cols or y < 1 or y > rows:
@@ -183,18 +211,26 @@ def open_cell(x, y):
     if matrix_opn[x-1][y-1] == 1:
         return
     
+    if matrix_flag[ncol-1][nrow-1] == 1:
+        matrix_flag[ncol-1][nrow-1] = 0
+        
     # Открытие клетки
     matrix_opn[x-1][y-1] = 1
+    matrix_win[x-1][y-1] = 1
     
     x1 = x * (razk + 1) - razk + 1
     y1 = y * (razk + 1) - razk + 1
     canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcl_color)
     
-    # ВРЕМЕННО РИСУЕМ МИНУ ВМЕСТО КОНЦА ИГРЫ
+    # КОНЕЦ ИГРЫ НА МИНЕ 
     if matrix[x-1][y-1] == 1:
-        draw_text(x, y, "М")
+        show_lose_window()
+        draw_text(x, y, "M")
         return
     
+    if matrix_win == matrix_win2:
+        show_win_window()
+                        
     count = know(x, y)  
     if count > 0:
         draw_text(x, y, count)
@@ -204,18 +240,66 @@ def open_cell(x, y):
             for j in range(y-1, y+2):
                 if not (i == x and j == y):
                     open_cell(i, j)
- 
-        
+
+
+# Запуск сканирования клетки      
 def scan():
     global nrow, ncol, first_click
     
     if first_click == 0:
-        matrix[ncol-1][nrow-1] = 0
+        x = ncol
+        y = nrow
+        for i in range(x-1, x+2):
+            for j in range(y-1, y+2):
+                if 1 <= i <= cols and 1 <= j <= rows:
+                    matrix[i-1][j-1] = 0
         first_click = 1
     
     open_cell(ncol, nrow)
                 
-                                   
+# Установка флага
+def flag():
+    global ncol, nrow
+    
+    if matrix_flag[ncol-1][nrow-1] == 0:
+        draw_text(ncol, nrow, "🚩")
+        matrix_flag[ncol-1][nrow-1] = 1
+    elif matrix_opn[ncol-1][nrow-1] == 1:
+            x1 = ncol * (razk + 1) - razk + 1
+            y1 = nrow * (razk + 1) - razk + 1
+            canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcl_color)
+            matrix_flag[ncol-1][nrow-1] = 0
+    else:
+            x1 = ncol * (razk + 1) - razk + 1
+            y1 = nrow * (razk + 1) - razk + 1
+            canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcolor)
+            matrix_flag[ncol-1][nrow-1] = 0
+    if matrix_flag[ncol-1][nrow-1] == matrix[ncol-1][nrow-1] == 1:
+        matrix_win[ncol-1][nrow-1] = 1
+    else:
+        matrix_win[ncol-1][nrow-1] = 0
+
+# Экран победы
+def show_win_window():
+    win = tk.Toplevel(root)
+    win.title("Победа!")
+    win.geometry("300x150")
+    win.resizable(False, False)
+    
+    label = tk.Label(win,text=f"Вы победили!\nСложность была: {dif}",font=("Arial", 14, "bold"))
+    label.pack(expand=True)
+
+# Экран поражения
+def show_lose_window():
+    lose = tk.Toplevel(root)
+    lose.attributes("-fullscreen", True)
+    lose.configure(bg="black")
+    
+    label = tk.Label(lose, text="💀 ВЫ ПРОИГРАЛИ 💀\n\nАнекдот\nИдет медведь по лесу, видит — машина горит. Сел в нее и сгорел.", font=("Arial", 40, "bold"), fg="red", bg="black")
+    label.pack(expand=True)
+
+    root.withdraw()
+                                         
 # КНОПКИ
 frame_bottom = tk.Frame(root)
 frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
@@ -245,7 +329,7 @@ tk_button_open = tk.Button(frame_bottom, text="Open", width=10, command=scan)
 tk_button_open.pack(side=tk.LEFT, padx=20)
 
 # Кнопка флажка
-#tk_button_min = tk.Button(frame_bottom, text="Min", command=mmin)
-#tk_button_min.pack(side=tk.LEFT, padx=20)            
+tk_button_flag = tk.Button(frame_bottom, text="Flag", width=10, command=flag)
+tk_button_flag.pack(side=tk.LEFT, padx=1)            
 
 root.mainloop()
