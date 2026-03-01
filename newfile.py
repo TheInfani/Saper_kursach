@@ -323,9 +323,7 @@ def show_lose_window():
 # Функция перезапуска игры
 def restart(windows):
     windows.destroy()
-    os.execl(sys.executable, sys.executable, *sys.argv)
-
-    
+    os.execl(sys.executable, sys.executable, *sys.argv) # Перезапуск кода
                                          
 # КНОПКИ
 frame_bottom = tk.Frame(root)
