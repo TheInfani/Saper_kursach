@@ -1,28 +1,35 @@
 import random
-import turtle
 import tkinter as tk
+import os
+import sys
 from tkinter import *
+from menu import *
 
-rows = 10 # Количество строк
-cols = 10 # Количество колонок
-razk = 50 # Размер клетки
+menu()
+window_that_vse_okay()
+
+rows = settings[0] # 10 # Количество строк
+cols = settings[1] # 10 # Количество колонок
+razk = settings[3] # 50 # Размер клетки
 razch = round(razk/3) # Размер цифр
-kcolor = "gray" # Цвет клеток
-kcl_color = "white" # Цвет чистой клетки
-k_obv = "red" # Цвет активной обводки
-k_flag = "green" # Цвет флага
+kcolor = settings[4] # "gray" # Цвет клеток
+kcl_color = settings[5] # "white" # Цвет открытой клетки
+k_obv = settings[6] # "red" # Цвет активной обводки
+k_flag = settings[7] # "green" # Цвет флага
 first_click = 0 # Проверка первого клика
 
-nrow = 8 # Текущая строка
-ncol = 8 # Текущая колонка
+for widget in root.winfo_children():
+    widget.destroy()
+
+nrow = 1 # Текущая строка
+ncol = 1 # Текущая колонка
 
 nnmbr = 0
 
-dif = 1 # Сложность
+dif = settings[2] # 1 # Сложность
 idif = 11 - dif # Инвертированная сложность
 
 matrix = [] # Матрица мин 
-
 
 # Создаём матрицу открытых клеток
 matrix_opn = [] # Матрица открытых клеток
@@ -57,7 +64,7 @@ for i in range(rows):
     matrix_win2.append(row)
 
 # Создаем основное окно
-root = tk.Tk()
+root.deiconify()
 root.title("Tkinter")
 root.geometry(f"{(cols * razk) + cols+4}x{(rows * razk) + rows + 100}")
 root.resizable(False, False)
@@ -108,6 +115,11 @@ def know(x, y):
 # ЗАПУК ОТРИСОВКИ ПОЛЯ
 kva(razk, rows, cols, kcolor)
 
+# Рисуем начальную обводку для удобсва
+x1_new = ncol * (razk + 1) - razk + 1
+y1_new = nrow * (razk + 1) - razk + 1
+canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
+canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)
 
 # ПЕРЕМЕЩЕНИЕ
 # Перемещение влево
@@ -278,9 +290,13 @@ def flag():
         matrix_win[ncol-1][nrow-1] = 1
     else:
         matrix_win[ncol-1][nrow-1] = 0
+    
+    if matrix_win == matrix_win2:
+        show_win_window()
 
 # Экран победы
 def show_win_window():
+    global win
     win = tk.Toplevel(root)
     win.title("Победа!")
     win.geometry("300x150")
@@ -288,17 +304,28 @@ def show_win_window():
     
     label = tk.Label(win,text=f"Вы победили!\nСложность была: {dif}",font=("Arial", 14, "bold"))
     label.pack(expand=True)
+    win_btn = tk.Button(win, text="Новая игра", width=10, command=lambda:restart(win))
+    win_btn.pack(side=tk.BOTTOM, pady=10)
 
 # Экран поражения
 def show_lose_window():
+    global lose
     lose = tk.Toplevel(root)
     lose.attributes("-fullscreen", True)
     lose.configure(bg="black")
     
     label = tk.Label(lose, text="💀 ВЫ ПРОИГРАЛИ 💀\n\nАнекдот\nИдет медведь по лесу, видит — машина горит. Сел в нее и сгорел.", font=("Arial", 40, "bold"), fg="red", bg="black")
     label.pack(expand=True)
+    lose.bind("<Escape>", lambda e: restart(lose))
+    lose.protocol("WM_DELETE_WINDOW", lambda: restart(lose))
 
-    root.withdraw()
+ 
+# Функция перезапуска игры
+def restart(windows):
+    windows.destroy()
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+    
                                          
 # КНОПКИ
 frame_bottom = tk.Frame(root)
