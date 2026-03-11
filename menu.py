@@ -5,76 +5,158 @@ from tkinter import colorchooser
 
 rows = 10 # Количество строк
 cols = 10 # Количество колонок
-dif = 1 # Сложность
-razk = 50 # Размер клетки
-kcolor = "#c0c0c0" # Цвет клеток
-kcl_color = "white" # Цвет чистой клетки
-k_obv = "red" # Цвет активной обводки
-k_flag = "green" # Цвет флага
+difficult = 1 # Сложность
+cell_size = 50 # Размер клетки
+cell_def_color = "#c0c0c0" # Цвет клеток
+cell_open_color = "white" # Цвет чистой клетки
+cell_outline_color = "red" # Цвет активной обводки
+flag_color = "green" # Цвет флага
 
-settings = [rows, cols, dif, razk, kcolor, kcl_color, k_obv, k_flag]
+settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color]
 root = tk.Tk() 
 
+def incorect_close():
+    incorect.destroy()
+
+def incorect_type():
+    global incorect
+    incorect = tk.Toplevel(root)
+    incorect.title("Ошибка")
+    incorect.geometry("400x100")
+    incorect.resizable(False, False)
+    label = tk.Label(incorect,text="Введён некоректный тип данных",font=("Arial", 14, "bold"))
+    label.pack(expand=True)
+    incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
+    incorect_btn.pack(side=tk.BOTTOM, pady=10)
+  
 # Отрисовка тестового отображения клеток
 def tryy():
-    global rows, cols, dif, razk, kcolor, kcl_color, k_obv, k_flag, settings
-    if size.get() != "":
-        rows = cols = int(size.get())
-    if diff.get() != "":
-        dif = int(diff.get())
-    if size_k.get() != "":
-        razk = int(size_k.get())
-    settings = [rows, cols, dif, razk, kcolor, kcl_color, k_obv, k_flag]
-    print(settings)
-    canvas.delete("all")
-    canvas.create_rectangle(100, 100, 100 + razk, 100 + razk, fill=kcl_color)
-    canvas.create_rectangle(100, 100, 100 + razk, 100 + razk, outline="black", width=1)
-    canvas.create_rectangle(99, 99, 100 + razk + 1, 100 + razk + 1, outline="black", width=1)
-    canvas.create_rectangle(102 + razk, 100, 102 + razk + razk, 100 + razk, fill=kcolor)
-    canvas.create_rectangle(102 + razk, 100, 102 + razk + razk, 100 + razk, outline=k_obv, width=1)
-    canvas.create_rectangle(102 + razk, 99, 102 + razk + razk + 1, 100 + razk + 1, outline=k_obv, width=1)
-    canvas.create_text(102 + razk + razk/2, 98 + razk/2, text="🚩", font=("Arial", round(razk/3),"bold"), fill=k_flag)
-    canvas.create_text(100 + + razk/2, 100 + razk/2, text="1", font=("Arial", round(razk/3),"bold"), fill="blue")
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect
+    
+    try:
+       cell_size = int(size_cell.get())
+    except ValueError:
+        incorect_type()
+    try:
+       difficult = int(difficultf.get())
+    except ValueError:
+        incorect_type()
+    try:
+       rows = cols = int(size.get())
+    except ValueError:
+        incorect_type()    
+ 
+    try:
+        if int(size.get()) < 3:
+            incorect = tk.Toplevel(root)
+            incorect.title("Ошибка")
+            incorect.geometry("400x120")
+            incorect.resizable(False, False)
+            label = tk.Label(incorect,text="Введите размер поля больше 2",font=("Arial", 14, "bold"))
+            label.pack(expand=True)
+            incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
+            incorect_btn.pack(side=tk.BOTTOM, pady=10)
 
+        elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
+            incorect = tk.Toplevel(root)
+            incorect.title("Ошибка")
+            incorect.geometry("400x180")
+            incorect.resizable(False, False)
+            label = tk.Label(incorect,text="Введите сложность в\nдиапазоне от 1 до 10",font=("Arial", 14, "bold"))
+            label.pack(expand=True)
+            incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
+            incorect_btn.pack(side=tk.BOTTOM, pady=10)  
+
+        elif int(size_cell.get()) < 10:
+            incorect = tk.Toplevel(root)
+            incorect.title("Ошибка")
+            incorect.geometry("280x150")
+            incorect.resizable(False, False)
+            label = tk.Label(incorect,text="Введите размер\nклетки больше 10",font=("Arial", 14, "bold"))
+            label.pack(expand=True)
+            incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
+            incorect_btn.pack(side=tk.BOTTOM, pady=10)
+ 
+    except ValueError:
+        print("gg")
+        
+    canvas.delete("all")
+    canvas.create_rectangle(100, 100, 100 + cell_size, 100 + cell_size, fill=cell_open_color)
+    canvas.create_rectangle(100, 100, 100 + cell_size, 100 + cell_size, outline="black", width=1)
+    canvas.create_rectangle(99, 99, 100 + cell_size + 1, 100 + cell_size + 1, outline="black", width=1)
+    canvas.create_rectangle(102 + cell_size, 100, 102 + cell_size + cell_size, 100 + cell_size, fill=cell_def_color)
+    canvas.create_rectangle(102 + cell_size, 100, 102 + cell_size + cell_size, 100 + cell_size, outline=cell_outline_color, width=1)
+    canvas.create_rectangle(102 + cell_size, 99, 102 + cell_size + cell_size + 1, 100 + cell_size + 1, outline=cell_outline_color, width=1)
+    canvas.create_text(102 + cell_size + cell_size/2, 98 + cell_size/2, text="🚩", font=("Arial", round(cell_size/3),"bold"), fill=flag_color)
+    canvas.create_text(100 + + cell_size/2, 100 + cell_size/2, text="1", font=("Arial", round(cell_size/3),"bold"), fill="blue")
+
+
+# По хорошему переписать одной функцией, но что-то не хочу
 def choose_color():
-    global kcolor
+    global cell_def_color
     color = colorchooser.askcolor()[1]
     if color:
-        kcolor = color
-    print(kcolor)
+        cell_def_color = color
+    print(cell_def_color)
     tryy()
 
 def choose_color2():
-    global kcl_color
+    global cell_open_color
     color = colorchooser.askcolor()[1]
     if color:
-        kcl_color = color
-    print(kcl_color)
+        cell_open_color = color
+    print(cell_open_color)
     tryy()
 
 def choose_color3():
-    global k_obv
+    global cell_outline_color
     color = colorchooser.askcolor()[1]
     if color:
-        k_obv = color
-    print(k_obv)
+        cell_outline_color = color
+    print(cell_outline_color)
     tryy()
     
 def choose_color4():
-    global k_flag
+    global flag_color
     color = colorchooser.askcolor()[1]
     if color:
-        k_flag = color
-    print(k_flag)
+        flag_color = color
+    print(flag_color)
     tryy()
 
 def start():
-    tryy()
-    root.quit()
+
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect 
+    try:
+
+        if int(size.get()) < 3:
+            tryy()  
+
+        elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
+            tryy()  
+
+        elif int(size_cell.get()) < 10:
+            tryy()  
+
+        else:
+            if size.get() != "":
+                rows = cols = int(size.get())
+            if difficultf.get() != "":
+                difficult = int(difficultf.get())
+            if size_cell.get() != "":
+                cell_size = int(size_cell.get())
+            settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color]
+            print(settings)
+            root.quit()
+
+    except ValueError:
+        incorect_type()
+           
+   
 
 # Основное меню
 def menu():
-    global rows, cols, dif, razk, kcolor, kcl_color, k_obv, k_flag, settings, size, diff, size_k
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell
     settings = {}
     root.title("Меню")
     root.geometry("600x450")
@@ -89,19 +171,22 @@ def menu():
     label = tk.Label(frame_left, text="Размер поля (в клетках)")
     label.pack(pady=5)
     size = tk.Entry(frame_left)
+    size.insert(0, 10)
     size.pack(pady=5)
    
     # Выясняем сложность
     label = tk.Label(frame_left, text="Сложность 1-10")
     label.pack(pady=5)
-    diff = tk.Entry(frame_left)
-    diff.pack(pady=5)
+    difficultf = tk.Entry(frame_left)
+    difficultf.insert(0, 5)
+    difficultf.pack(pady=5)
     
     # Выясняем размер клетки
     label = tk.Label(frame_left, text="Размер клетки в пикселях")
     label.pack(pady=5)
-    size_k = tk.Entry(frame_left)
-    size_k.pack(pady=5)
+    size_cell = tk.Entry(frame_left)
+    size_cell.insert(0, 50)
+    size_cell.pack(pady=5)
     
     # Выясняем цвет келток по умолчанию
     label = tk.Label(frame_left, text="Цвет клеток по умолчанию")
@@ -155,7 +240,7 @@ def oc():
     pass  
  
 # Меню с соглашением
-def window_that_vse_okay():
+def window_license():
     okay = tk.Toplevel(root)
     okay.protocol("WM_DELETE_WINDOW", oc)
     okay.title("Пользовательсоке соглашение")
@@ -166,7 +251,7 @@ def window_that_vse_okay():
     okay_b = tk.Button(okay, text="Дальше", command=lambda: okay_close(okay), width=15) # Кнопка чтобы закрыть это чудо, потом сделаю рабочей (lambda добавить надо)
     okay_b.pack(side=tk.BOTTOM, pady=20)
 
-window_that_vse_okay()
+window_license()
 
 menu()
 

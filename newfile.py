@@ -6,16 +6,16 @@ from tkinter import *
 from menu import *
 
 menu()
-window_that_vse_okay()
+window_license()
 
 rows = settings[0] # 10 # Количество строк
 cols = settings[1] # 10 # Количество колонок
-razk = settings[3] # 50 # Размер клетки
-razch = round(razk/3) # Размер цифр
-kcolor = settings[4] # "gray" # Цвет клеток
-kcl_color = settings[5] # "white" # Цвет открытой клетки
-k_obv = settings[6] # "red" # Цвет активной обводки
-k_flag = settings[7] # "green" # Цвет флага
+cell_size = settings[3] # 50 # Размер клетки
+num_size = round(cell_size/3) # Размер цифр
+cell_def_color = settings[4] # "gray" # Цвет клеток
+cell_open_color = settings[5] # "white" # Цвет открытой клетки
+cell_outline_color = settings[6] # "red" # Цвет активной обводки
+flag_color = settings[7] # "green" # Цвет флага
 first_click = 0 # Проверка первого клика
 
 for widget in root.winfo_children():
@@ -26,18 +26,18 @@ ncol = 1 # Текущая колонка
 
 nnmbr = 0
 
-dif = settings[2] # 1 # Сложность
-idif = 11 - dif # Инвертированная сложность
+difficult = settings[2] # 1 # Сложность
+inv_difficult = 11 - difficult # Инвертированная сложность
 
 matrix = [] # Матрица мин 
 
 # Создаём матрицу открытых клеток
-matrix_opn = [] # Матрица открытых клеток
+matrix_open = [] # Матрица открытых клеток
 for i in range(rows):
     row = []
     for j in range(cols):
         row.append(0)
-    matrix_opn.append(row)
+    matrix_open.append(row)
     
 # Создаём матрицу флагов
 matrix_flag = [] # Матрица флагов
@@ -66,11 +66,14 @@ for i in range(rows):
 # Создаем основное окно
 root.deiconify()
 root.title("Tkinter")
-root.geometry(f"{(cols * razk) + cols+4}x{(rows * razk) + rows + 100}")
+if cols*cell_size > 350:
+    root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + 100}")
+else:
+    root.geometry("350x450")
 root.resizable(False, False)
 
 # Создаем холст (Canvas) в верхней части окна
-canvas = tk.Canvas(root, width=(cols*razk)+cols+4, height=(rows*razk)+rows) 
+canvas = tk.Canvas(root, width=(cols*cell_size)+cols+4, height=(rows*cell_size)+rows) 
 canvas.pack(pady=10)
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
@@ -93,7 +96,7 @@ def kva(stor, kolv_str, kolv_stbl, colors):
 for i in range(rows):
     row = []
     for j in range(cols):
-        if  random.randint(0, idif) == 1:
+        if  random.randint(0, inv_difficult) == 1:
             row.append(1)
         else:
             row.append(0)
@@ -113,13 +116,13 @@ def know(x, y):
 
 
 # ЗАПУК ОТРИСОВКИ ПОЛЯ
-kva(razk, rows, cols, kcolor)
+kva(cell_size, rows, cols, cell_def_color)
 
 # Рисуем начальную обводку для удобсва
-x1_new = ncol * (razk + 1) - razk + 1
-y1_new = nrow * (razk + 1) - razk + 1
-canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
-canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)
+x1_new = ncol * (cell_size + 1) - cell_size + 1
+y1_new = nrow * (cell_size + 1) - cell_size + 1
+canvas.create_rectangle(x1_new, y1_new, x1_new + cell_size, y1_new + cell_size, outline=cell_outline_color, width=1)
+canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new + cell_size + 1, outline=cell_outline_color, width=1)
 
 # ПЕРЕМЕЩЕНИЕ
 # Перемещение влево
@@ -127,75 +130,75 @@ def mleft():
     global nrow, ncol
     
     if ncol > 1:
-        x1 = ncol * (razk + 1) - razk + 1
-        y1 = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, outline="black", width=1)
-        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + razk + 1, y1 + razk + 1, outline="black", width=1)
+        x1 = ncol * (cell_size + 1) - cell_size + 1
+        y1 = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
+        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + cell_size + 1, y1 + cell_size + 1, outline="black", width=1)
 
         ncol -= 1
-        x1_new = ncol * (razk + 1) - razk + 1
-        y1_new = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
-        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)
+        x1_new = ncol * (cell_size + 1) - cell_size + 1
+        y1_new = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1_new, y1_new, x1_new + cell_size, y1_new + cell_size, outline=cell_outline_color, width=1)
+        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new + cell_size + 1, outline=cell_outline_color, width=1)
         
 # Перемещение вправо
 def mright():
     global nrow, ncol
     
     if ncol < 10:
-        x1 = ncol * (razk + 1) - razk + 1
-        y1 = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, outline="black", width=1)
-        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + razk + 1, y1 + razk + 1, outline="black", width=1)
+        x1 = ncol * (cell_size + 1) - cell_size + 1
+        y1 = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
+        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + cell_size + 1, y1 + cell_size + 1, outline="black", width=1)
 
         ncol += 1
-        x1_new = ncol * (razk + 1) - razk + 1
-        y1_new = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
-        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)
+        x1_new = ncol * (cell_size + 1) - cell_size + 1
+        y1_new = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1_new, y1_new, x1_new + cell_size, y1_new + cell_size, outline=cell_outline_color, width=1)
+        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new + cell_size + 1, outline=cell_outline_color, width=1)
         
 # Перемещение вверх
 def mup():
     global nrow, ncol
     
     if nrow > 1:
-        x1 = ncol * (razk + 1) - razk + 1
-        y1 = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, outline="black", width=1)
-        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + razk + 1, y1 + razk + 1, outline="black", width=1)
+        x1 = ncol * (cell_size + 1) - cell_size + 1
+        y1 = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
+        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + cell_size + 1, y1 + cell_size + 1, outline="black", width=1)
 
         nrow -= 1
-        x1_new = ncol * (razk + 1) - razk + 1
-        y1_new = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
-        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)
+        x1_new = ncol * (cell_size + 1) - cell_size + 1
+        y1_new = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1_new, y1_new, x1_new + cell_size, y1_new + cell_size, outline=cell_outline_color, width=1)
+        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new + cell_size + 1, outline=cell_outline_color, width=1)
 
 # Перемещение вниз
 def mdown():
     global nrow, ncol
     
     if nrow < 10:
-        x1 = ncol * (razk + 1) - razk + 1
-        y1 = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, outline="black", width=1)
-        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + razk + 1, y1 + razk + 1, outline="black", width=1)
+        x1 = ncol * (cell_size + 1) - cell_size + 1
+        y1 = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
+        canvas.create_rectangle(x1 - 1, y1 - 1, x1 + cell_size + 1, y1 + cell_size + 1, outline="black", width=1)
 
         nrow += 1
-        x1_new = ncol * (razk + 1) - razk + 1
-        y1_new = nrow * (razk + 1) - razk + 1
-        canvas.create_rectangle(x1_new, y1_new, x1_new + razk, y1_new + razk, outline=k_obv, width=1)
-        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + razk + 1, y1_new + razk + 1, outline=k_obv, width=1)    
+        x1_new = ncol * (cell_size + 1) - cell_size + 1
+        y1_new = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1_new, y1_new, x1_new + cell_size, y1_new + cell_size, outline=cell_outline_color, width=1)
+        canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new + cell_size + 1, outline=cell_outline_color, width=1)    
 
 # ВЗАИМОДЕЙСТВИЕ
 
 # Рисование текста
 def draw_text(col, row, char):
-    x = (col * (razk + 1) - razk + 1) + (razk / 2)
-    y = (row * (razk + 1) - razk + 1) + (razk / 2)
+    x = (col * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
+    y = (row * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
     if char == "M":
         color = "red"
     elif char == "🚩":
-        color = k_flag
+        color = flag_color
     elif int(char) == 1:
         color = "blue"
     elif int(char) == 2:
@@ -212,7 +215,7 @@ def draw_text(col, row, char):
         color = "black"
     elif int(char) == 8:
         color = "gray"
-    canvas.create_text(x, y, text=str(char), font=("Arial", razch,"bold"), fill=color)
+    canvas.create_text(x, y, text=str(char), font=("Arial", num_size,"bold"), fill=color)
 
 # Алгоритм открывания и рекурсия
 def open_cell(x, y):
@@ -220,19 +223,19 @@ def open_cell(x, y):
         return
     
     # Проверка клетки
-    if matrix_opn[x-1][y-1] == 1:
+    if matrix_open[x-1][y-1] == 1:
         return
     
     if matrix_flag[ncol-1][nrow-1] == 1:
         matrix_flag[ncol-1][nrow-1] = 0
         
     # Открытие клетки
-    matrix_opn[x-1][y-1] = 1
+    matrix_open[x-1][y-1] = 1
     matrix_win[x-1][y-1] = 1
     
-    x1 = x * (razk + 1) - razk + 1
-    y1 = y * (razk + 1) - razk + 1
-    canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcl_color)
+    x1 = x * (cell_size + 1) - cell_size + 1
+    y1 = y * (cell_size + 1) - cell_size + 1
+    canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_open_color)
     
     # КОНЕЦ ИГРЫ НА МИНЕ 
     if matrix[x-1][y-1] == 1:
@@ -276,15 +279,15 @@ def flag():
     if matrix_flag[ncol-1][nrow-1] == 0:
         draw_text(ncol, nrow, "🚩")
         matrix_flag[ncol-1][nrow-1] = 1
-    elif matrix_opn[ncol-1][nrow-1] == 1:
-            x1 = ncol * (razk + 1) - razk + 1
-            y1 = nrow * (razk + 1) - razk + 1
-            canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcl_color)
+    elif matrix_open[ncol-1][nrow-1] == 1:
+            x1 = ncol * (cell_size + 1) - cell_size + 1
+            y1 = nrow * (cell_size + 1) - cell_size + 1
+            canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_open_color)
             matrix_flag[ncol-1][nrow-1] = 0
     else:
-            x1 = ncol * (razk + 1) - razk + 1
-            y1 = nrow * (razk + 1) - razk + 1
-            canvas.create_rectangle(x1, y1, x1 + razk, y1 + razk, fill=kcolor)
+            x1 = ncol * (cell_size + 1) - cell_size + 1
+            y1 = nrow * (cell_size + 1) - cell_size + 1
+            canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
             matrix_flag[ncol-1][nrow-1] = 0
     if matrix_flag[ncol-1][nrow-1] == matrix[ncol-1][nrow-1] == 1:
         matrix_win[ncol-1][nrow-1] = 1
@@ -302,7 +305,7 @@ def show_win_window():
     win.geometry("300x150")
     win.resizable(False, False)
     
-    label = tk.Label(win,text=f"Вы победили!\nСложность была: {dif}",font=("Arial", 14, "bold"))
+    label = tk.Label(win,text=f"Вы победили!\nСложность была: {difficult}",font=("Arial", 14, "bold"))
     label.pack(expand=True)
     win_btn = tk.Button(win, text="Новая игра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
@@ -324,7 +327,8 @@ def show_lose_window():
 def restart(windows):
     windows.destroy()
     os.execl(sys.executable, sys.executable, *sys.argv) # Перезапуск кода
-                                         
+# *sys.argv применяет текущие аргументы командой строки, sys.executable исходный путь к интерпритатору
+                                        
 # КНОПКИ
 frame_bottom = tk.Frame(root)
 frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
