@@ -4,6 +4,7 @@ import os
 import sys
 from tkinter import *
 from menu import *
+import math
 
 menu()
 window_license()
@@ -17,12 +18,13 @@ cell_open_color = settings[5] # "white" # Цвет открытой клетки
 cell_outline_color = settings[6] # "red" # Цвет активной обводки
 flag_color = settings[7] # "green" # Цвет флага
 first_click = 0 # Проверка первого клика
+min_count = 0 # Количество мин
 
 for widget in root.winfo_children():
     widget.destroy()
 
-nrow = 1 # Текущая строка
-ncol = 1 # Текущая колонка
+nrow = math.ceil(rows/2) # Текущая строка
+ncol = math.ceil(cols/2) # Текущая колонка
 
 nnmbr = 0
 
@@ -31,6 +33,17 @@ inv_difficult = 11 - difficult # Инвертированная сложност
 
 matrix = [] # Матрица мин 
 
+# СОЗДАНИЕ МАТРИЦЫ МИН
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        if  random.randint(0, inv_difficult) == 1:
+            row.append(1)
+            min_count += 1
+        else:
+            row.append(0)
+    matrix.append(row)
+   
 # Создаём матрицу открытых клеток
 matrix_open = [] # Матрица открытых клеток
 for i in range(rows):
@@ -62,14 +75,14 @@ for i in range(rows):
     for j in range(cols):
         row.append(1)
     matrix_win2.append(row)
-
+     
 # Создаем основное окно
 root.deiconify()
 root.title("Tkinter")
-if cols*cell_size > 350:
-    root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + 100}")
+if cols*cell_size >= 350:
+    root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + 130}")
 else:
-    root.geometry("350x450")
+    root.geometry("350x480")
 root.resizable(False, False)
 
 # Создаем холст (Canvas) в верхней части окна
@@ -77,6 +90,9 @@ canvas = tk.Canvas(root, width=(cols*cell_size)+cols+4, height=(rows*cell_size)+
 canvas.pack(pady=10)
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
+mins_label = tk.Label(root, text="Откройте первую клетку", font=("Arial", 12))
+mins_label.pack(side=tk.TOP, pady=5)
+
 def kva(stor, kolv_str, kolv_stbl, colors):
     x1 = 0
     y1 = 2
@@ -92,15 +108,7 @@ def kva(stor, kolv_str, kolv_stbl, colors):
         y1 = y1 + stor + 1
         y2 = y2 + stor + 1
 
-# СОЗДАНИЕ МАТРИЦЫ МИН
-for i in range(rows):
-    row = []
-    for j in range(cols):
-        if  random.randint(0, inv_difficult) == 1:
-            row.append(1)
-        else:
-            row.append(0)
-    matrix.append(row)
+
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
 def know(x, y):
@@ -222,12 +230,16 @@ def open_cell(x, y):
     if x < 1 or x > cols or y < 1 or y > rows:
         return
     
+    print(matrix_flag)
     # Проверка клетки
     if matrix_open[x-1][y-1] == 1:
         return
     
-    if matrix_flag[ncol-1][nrow-1] == 1:
-        matrix_flag[ncol-1][nrow-1] = 0
+    if matrix_flag[x-1][y-1] == 1:
+        matrix_flag[x-1][y-1] = 0
+        global min_count
+        min_count += 1
+        mins_label.config(text=f"Флажков: {min_count}")
         
     # Открытие клетки
     matrix_open[x-1][y-1] = 1
@@ -259,36 +271,37 @@ def open_cell(x, y):
 
 # Запуск сканирования клетки      
 def scan():
-    global nrow, ncol, first_click
-    
+    global nrow, ncol, first_click, min_count
     if first_click == 0:
         x = ncol
         y = nrow
         for i in range(x-1, x+2):
             for j in range(y-1, y+2):
                 if 1 <= i <= cols and 1 <= j <= rows:
+                    if matrix[i-1][j-1] == 1:
+                        min_count -= 1
                     matrix[i-1][j-1] = 0
+        mins_label.config(text=f"Флажков: {min_count}")
         first_click = 1
     
     open_cell(ncol, nrow)
                 
 # Установка флага
 def flag():
-    global ncol, nrow
+    global ncol, nrow, min_count
     
-    if matrix_flag[ncol-1][nrow-1] == 0:
+    if matrix_flag[ncol-1][nrow-1] == 0 and matrix_open[ncol-1][nrow-1] == 0:
         draw_text(ncol, nrow, "🚩")
         matrix_flag[ncol-1][nrow-1] = 1
-    elif matrix_open[ncol-1][nrow-1] == 1:
-            x1 = ncol * (cell_size + 1) - cell_size + 1
-            y1 = nrow * (cell_size + 1) - cell_size + 1
-            canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_open_color)
-            matrix_flag[ncol-1][nrow-1] = 0
-    else:
+        min_count -= 1
+        mins_label.config(text=f"Флажков: {min_count}") # Обновление текста с количеством флажков
+    elif matrix_flag[ncol-1][nrow-1] == 1 and matrix_open[ncol-1][nrow-1] == 0:
             x1 = ncol * (cell_size + 1) - cell_size + 1
             y1 = nrow * (cell_size + 1) - cell_size + 1
             canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
             matrix_flag[ncol-1][nrow-1] = 0
+            min_count += 1
+            mins_label.config(text=f"Флажков: {min_count}")
     if matrix_flag[ncol-1][nrow-1] == matrix[ncol-1][nrow-1] == 1:
         matrix_win[ncol-1][nrow-1] = 1
     else:
