@@ -242,7 +242,6 @@ def oc():
 # Меню с соглашением
 def window_license():
     okay = tk.Toplevel(root)
-    okay.protocol("WM_DELETE_WINDOW", oc)
     okay.title("Пользовательсоке соглашение")
     okay.geometry("600x300")
     okay.resizable(False, False) # Пусть будет

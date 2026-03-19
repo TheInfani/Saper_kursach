@@ -352,19 +352,33 @@ def show_win_window():
     win_btn = tk.Button(win, text="Новая игра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
 
+def open_all_mines():
+    for i in range(cols):
+        for j in range(rows):
+            if matrix[i][j] == 1:
+                draw_text(i+1, j+1, "M")
+
 # Экран поражения
 def show_lose_window():
     global lose
     lose = tk.Toplevel(root)
-    lose.attributes("-fullscreen", True)
-    lose.configure(bg="black")
-    
-    label = tk.Label(lose, text="💀 ВЫ ПРОИГРАЛИ 💀\n\nАнекдот\nИдет медведь по лесу, видит — машина горит. Сел в нее и сгорел.", font=("Arial", 40, "bold"), fg="red", bg="black")
+    lose.title("Поражение!")
+    lose.geometry("300x150")
+    lose.resizable(False, False)
+    label = tk.Label(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
     label.pack(expand=True)
-    lose.bind("<Escape>", lambda e: restart(lose))
+    open_all_mines()
+    
+    btn_menu = tk.Button(lose, text="В меню", width=10, command=lambda: restart(lose))
+    btn_menu.pack(side=tk.BOTTOM, pady=10)
+
+    # Блокировка основного окна при открытии окна поражения
+    lose.grab_set()
+    lose.focus_set()
+
+    # При закрытии окна крестиком срабатывает выход в меню
     lose.protocol("WM_DELETE_WINDOW", lambda: restart(lose))
 
- 
 # Функция перезапуска игры
 def restart(windows):
     windows.destroy()
