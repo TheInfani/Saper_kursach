@@ -89,6 +89,34 @@ root.resizable(False, False)
 canvas = tk.Canvas(root, width=(cols*cell_size)+cols+4, height=(rows*cell_size)+rows) 
 canvas.pack(pady=10)
 
+# Обработчик кликов
+def handle_click(event):
+    # Фикс с обводкой при использовании кнопок и мышки
+    global nrow, ncol
+    x1 = ncol * (cell_size + 1) - cell_size + 1
+    y1 = nrow * (cell_size + 1) - cell_size + 1
+    canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
+    canvas.create_rectangle(x1 - 1, y1 - 1, x1 + cell_size + 1, y1 + cell_size + 1, outline="black", width=1)
+    # Проверяем, что клик внутри игрового поля
+    max_x = 2 + cols * (cell_size + 1)
+    max_y = 2 + rows * (cell_size + 1)
+    
+    if event.x < 2 or event.x > max_x or event.y < 2 or event.y > max_y:
+        return
+    else:
+        ncol = (event.x - 2) // (cell_size + 1) + 1
+        nrow = (event.y - 2) // (cell_size + 1) + 1
+        if event.num == 1:
+            scan()
+        elif event.num == 3:
+            flag()
+        
+# Привязываем обработчик кликов к холсту
+canvas.bind('<Button-1>', handle_click)
+canvas.bind('<Button-3>', handle_click)
+
+
+
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 mins_label = tk.Label(root, text="Откройте первую клетку", font=("Arial", 12))
 mins_label.pack(side=tk.TOP, pady=5)
@@ -230,7 +258,6 @@ def open_cell(x, y):
     if x < 1 or x > cols or y < 1 or y > rows:
         return
     
-    print(matrix_flag)
     # Проверка клетки
     if matrix_open[x-1][y-1] == 1:
         return
