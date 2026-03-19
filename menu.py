@@ -47,12 +47,12 @@ def tryy():
         incorect_type()    
  
     try:
-        if int(size.get()) < 3:
+        if int(size.get()) < 3 or int(size.get()) > 20:
             incorect = tk.Toplevel(root)
             incorect.title("Ошибка")
-            incorect.geometry("400x120")
+            incorect.geometry("500x120")
             incorect.resizable(False, False)
-            label = tk.Label(incorect,text="Введите размер поля больше 2",font=("Arial", 14, "bold"))
+            label = tk.Label(incorect,text="Введите размер поля в диапазоне от 3 до 20",font=("Arial", 14, "bold"))
             label.pack(expand=True)
             incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
             incorect_btn.pack(side=tk.BOTTOM, pady=10)
@@ -90,7 +90,13 @@ def tryy():
     canvas.create_text(102 + cell_size + cell_size/2, 98 + cell_size/2, text="🚩", font=("Arial", round(cell_size/3),"bold"), fill=flag_color)
     canvas.create_text(100 + + cell_size/2, 100 + cell_size/2, text="1", font=("Arial", round(cell_size/3),"bold"), fill="blue")
 
-
+    try:
+        cell_size = int(size_cell.get())
+        calculate_max_size()
+    except ValueError:
+        incorect_type()
+        return
+    
 # По хорошему переписать одной функцией, но что-то не хочу
 def choose_color():
     global cell_def_color
@@ -129,7 +135,7 @@ def start():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect 
     try:
 
-        if int(size.get()) < 3:
+        if int(size.get()) < 3 or int(size.get()) > 20:
             tryy()  
 
         elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
@@ -151,19 +157,31 @@ def start():
 
     except ValueError:
         incorect_type()
-           
-   
+     
+# Функция для расчёта максимального рекомендованного размера поля в зависимости от размера клетки и разрешения экрана           
+def calculate_max_size():
+    try:
+        c_size = int(size_cell.get())
+        if c_size > 0:
+            screen_w = root.winfo_screenwidth()
+            screen_h = root.winfo_screenheight()
+
+            max_safe = min((screen_w - 54) // (c_size + 1), (screen_h - 180) // (c_size + 1))
+            
+            lbl_recommended.config(text=f"Макс. рекомендований розмір поля: {max_safe}")
+    except ValueError:
+        pass
 
 # Основное меню
 def menu():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell
     settings = {}
     root.title("Меню")
-    root.geometry("600x450")
+    root.geometry("600x480")
     root.resizable(False, False)
 
     # Левый фрейм
-    frame_left = tk.Frame(root, width=300, height=450, bg="lightgray")
+    frame_left = tk.Frame(root, width=300, height=480, bg="lightgray")
     frame_left.pack(side="left")
     frame_left.pack_propagate(False)
     
@@ -187,6 +205,12 @@ def menu():
     size_cell = tk.Entry(frame_left)
     size_cell.insert(0, 50)
     size_cell.pack(pady=5)
+    
+    # Рекомендация по максимальному размеру поля в зависимости от размера клетки и разрешения экрана
+    global lbl_recommended
+    lbl_recommended = tk.Label(frame_left, text="", fg="red", bg="lightgray", font=("Arial", 9))
+    lbl_recommended.pack(pady=0)
+    calculate_max_size()
     
     # Выясняем цвет келток по умолчанию
     label = tk.Label(frame_left, text="Цвет клеток по умолчанию")
@@ -213,7 +237,7 @@ def menu():
     btn4.pack(pady=5)
 
     # Правый фрейм 
-    frame_right = tk.Frame(root, width=300, height=450, bg="darkgray")
+    frame_right = tk.Frame(root, width=300, height=480, bg="darkgray")
     frame_right.pack(side="right")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
     global canvas
