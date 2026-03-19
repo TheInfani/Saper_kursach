@@ -114,8 +114,11 @@ def handle_click(event):
 # Привязываем обработчик кликов к холсту
 canvas.bind('<Button-1>', handle_click)
 canvas.bind('<Button-3>', handle_click)
-
-
+# Привязка стрелочек на клавиатуре (привязываем к root, чтобы работало всегда)
+root.bind('<Left>', lambda event: mleft())
+root.bind('<Right>', lambda event: mright())
+root.bind('<Up>', lambda event: mup())
+root.bind('<Down>', lambda event: mdown())
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 mins_label = tk.Label(root, text="Откройте первую клетку", font=("Arial", 12))
@@ -135,7 +138,6 @@ def kva(stor, kolv_str, kolv_stbl, colors):
             x2 = x2 + stor + 1
         y1 = y1 + stor + 1
         y2 = y2 + stor + 1
-
 
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
