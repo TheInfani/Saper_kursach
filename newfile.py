@@ -351,6 +351,13 @@ def show_win_window():
     label.pack(expand=True)
     win_btn = tk.Button(win, text="Новая игра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
+    
+    # Блокировка основного окна при открытии окна поражения
+    win.grab_set()
+    win.focus_set()
+
+    # При закрытии окна крестиком срабатывает выход в меню
+    win.protocol("WM_DELETE_WINDOW", lambda: restart(win))
 
 def open_all_mines():
     for i in range(cols):
