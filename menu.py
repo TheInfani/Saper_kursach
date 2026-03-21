@@ -12,7 +12,12 @@ cell_open_color = "white" # Цвет чистой клетки
 cell_outline_color = "red" # Цвет активной обводки
 flag_color = "green" # Цвет флага
 
-settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color]
+# Настройки для сетевой игры
+game_mode = 'single'
+player_name = 'Игрок'
+host_ip = '127.0.0.1'
+
+settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode, player_name, host_ip]
 root = tk.Tk() 
 
 def incorect_close():
@@ -47,12 +52,12 @@ def tryy():
         incorect_type()    
  
     try:
-        if int(size.get()) < 3 or int(size.get()) > 20:
+        if int(size.get()) < 5 or int(size.get()) > 25:
             incorect = tk.Toplevel(root)
             incorect.title("Ошибка")
             incorect.geometry("500x120")
             incorect.resizable(False, False)
-            label = tk.Label(incorect,text="Введите размер поля в диапазоне от 3 до 20",font=("Arial", 14, "bold"))
+            label = tk.Label(incorect,text="Введите размер поля в диапазоне от 5 до 25",font=("Arial", 14, "bold"))
             label.pack(expand=True)
             incorect_btn = tk.Button(incorect, text="Ок", width=10, command=incorect_close)
             incorect_btn.pack(side=tk.BOTTOM, pady=10)
@@ -135,7 +140,7 @@ def start():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect 
     try:
 
-        if int(size.get()) < 3 or int(size.get()) > 20:
+        if int(size.get()) < 5 or int(size.get()) > 25:
             tryy()  
 
         elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
@@ -166,7 +171,7 @@ def calculate_max_size():
             screen_w = root.winfo_screenwidth()
             screen_h = root.winfo_screenheight()
 
-            max_safe = min((screen_w - 54) // (c_size + 1), (screen_h - 180) // (c_size + 1))
+            max_safe = min((screen_w - 54) // (c_size + 1), (screen_h - 200) // (c_size + 1))
             
             lbl_recommended.config(text=f"Макс. рекомендований розмір поля: {max_safe}")
     except ValueError:
@@ -176,7 +181,7 @@ def calculate_max_size():
 def menu():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell
     settings = {}
-    root.title("Меню")
+    root.title("Меню настроек игры")
     root.geometry("600x480")
     root.resizable(False, False)
 
@@ -255,27 +260,31 @@ def menu():
     
 root.withdraw() # Прячем "Родительское" меню
 
-def okay_close(win):
-    win.destroy() # Надо бо функия об`явлена до появления переменной, а кнопку надо ставить после
-    root.deiconify() # Показываем menu
-    
-# Функция которая ничего не делает
-def oc():
-    pass  
- 
-# Меню с соглашением
-def window_license():
-    okay = tk.Toplevel(root)
-    okay.title("Пользовательсоке соглашение")
-    okay.geometry("600x300")
-    okay.resizable(False, False) # Пусть будет
-    label = tk.Label(okay,text=f"Нажимая кнопку \"дальше\" вы соглашаетесь\nна снятие ответственности с разработчика\n если что-то случится. Всем мира и добра",font=("Arial", 14, "bold"))
-    label.pack(expand=True)
-    okay_b = tk.Button(okay, text="Дальше", command=lambda: okay_close(okay), width=15) # Кнопка чтобы закрыть это чудо, потом сделаю рабочей (lambda добавить надо)
-    okay_b.pack(side=tk.BOTTOM, pady=20)
+def single_menu():
+    global game_mode
+    game_mode = 'single'
+    select.destroy()
+    root.deiconify() # Показываем "Родительское" меню
+    menu()
 
-window_license()
 
-menu()
+def win_select_mode():
+    global select, root
+    select = tk.Toplevel(root)
+    select.title("Выбор режима")
+    select.geometry("350x250")
+    select.resizable(False, False)
+    label =tk.Label(select, text="Сапёр Онлайн", font=("Arial", 16, "bold"))
+    label.pack(pady=15)
+    single_btn = tk.Button(select, text="Одиночная игра", width=20, command=lambda: [select.destroy(), single_menu()])
+    single_btn.pack(pady=10)
+    online_btn = tk.Button(select, text="Сетевая игра", width=20, command=lambda: [select.destroy(), menu()])
+    online_btn.pack(pady=10)
+    host_btn = tk.Button(select, text="Создать лобби", width=20, command=lambda: [select.destroy(), menu()])
+    host_btn.pack(pady=10)
+    select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
+
+win_select_mode()
+
 
 root.mainloop()    

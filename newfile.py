@@ -6,8 +6,7 @@ from tkinter import *
 from menu import *
 import math
 
-menu()
-window_license()
+win_select_mode()
 
 rows = settings[0] # 10 # Количество строк
 cols = settings[1] # 10 # Количество колонок
@@ -109,7 +108,7 @@ def handle_click(event):
         if event.num == 1:
             scan()
         elif event.num == 3:
-            flag()
+            flag(ncol, nrow)
         
 # Привязываем обработчик кликов к холсту
 canvas.bind('<Button-1>', handle_click)
@@ -316,8 +315,8 @@ def scan():
     open_cell(ncol, nrow)
                 
 # Установка флага
-def flag():
-    global ncol, nrow, min_count
+def flag(ncol=ncol, nrow=nrow):
+    global min_count
     
     if matrix_flag[ncol-1][nrow-1] == 0 and matrix_open[ncol-1][nrow-1] == 0:
         draw_text(ncol, nrow, "🚩")
