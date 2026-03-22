@@ -256,8 +256,12 @@ def mdown():
 def draw_text(col, row, char):
     x = (col * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
     y = (row * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
-    if char == "M":
-        color = "red"
+    if char == "💣":
+        x1 = ncol * (cell_size + 1) - cell_size + 1
+        y1 = nrow * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
+        color = "darkred"
+        canvas.create_text(x, y, text=str(char), font=("Segoe UI Emoji", num_size))
     elif char == "🚩":
         color = flag_color
     elif int(char) == 1:
@@ -304,7 +308,7 @@ def open_cell(x, y):
     # КОНЕЦ ИГРЫ НА МИНЕ 
     if matrix[x-1][y-1] == 1:
         show_lose_window()
-        draw_text(x, y, "M")
+        draw_text(x, y, "💣")
         return
     
     if matrix_win == matrix_win2:
@@ -387,7 +391,7 @@ def open_all_mines():
     for i in range(cols):
         for j in range(rows):
             if matrix[i][j] == 1:
-                draw_text(i+1, j+1, "M")
+                draw_text(i+1, j+1, "💣")
 
 # Экран поражения
 def show_lose_window():

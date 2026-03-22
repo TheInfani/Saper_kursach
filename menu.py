@@ -32,6 +32,17 @@ class ClassButton(ctk.CTkButton):
             font=ctk.CTkFont(size=12) # Шрифт
         )
 
+class ErrorWindow(ctk.CTkToplevel):
+    def __init__ (self, master, error_text, size):
+        super().__init__(master)
+        self.title("Ошибка")
+        self.geometry(size)
+        self.resizable(False, False)
+        label = ctk.CTkLabel(self, text=error_text, font=("Arial", 16, "bold"))
+        label.pack(expand=True, pady=10)
+        btn = ClassButton(self, text="Ок", command=self.destroy)
+        btn.pack(side="bottom", pady=10)
+
 # Настройки для сетевой игры
 game_mode = 'single'
 # player_name = 'Игрок'
@@ -40,70 +51,32 @@ game_mode = 'single'
 settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
 root = ctk.CTk() 
 
-def incorect_close():
-    incorect.destroy()
-
-def incorect_type():
-    global incorect
-    incorect = ctk.CTkToplevel(root)
-    incorect.title("Ошибка")
-    incorect.geometry("400x100")
-    incorect.resizable(False, False)
-    label = ctk.CTkLabel(incorect,text="Введён некоректный тип данных",font=("Arial", 14, "bold"))
-    label.pack(expand=True)
-    incorect_btn = ClassButton(incorect, text="Ок", width=10, command=incorect_close)
-    incorect_btn.pack(side=tk.BOTTOM, pady=10)
-  
 # Отрисовка тестового отображения клеток
 def tryy():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect
     
+    # Проверка ввода на некорректные типы данных
     try:
-       cell_size = int(size_cell.get())
+        cell_size = int(size_cell.get())
+        difficult = int(difficultf.get())
+        rows = cols = int(size.get())
     except ValueError:
-        incorect_type()
-    try:
-       difficult = int(difficultf.get())
-    except ValueError:
-        incorect_type()
-    try:
-       rows = cols = int(size.get())
-    except ValueError:
-        incorect_type()    
- 
-    try:
-        if int(size.get()) < 5 or int(size.get()) > 25:
-            incorect = ctk.CTkToplevel(root)
-            incorect.title("Ошибка")
-            incorect.geometry("500x120")
-            incorect.resizable(False, False)
-            label = ctk.CTkLabel(incorect,text="Введите размер поля в диапазоне от 5 до 25",font=("Arial", 14, "bold"))
-            label.pack(expand=True)
-            incorect_btn = ClassButton(incorect, text="Ок", width=10, command=incorect_close)
-            incorect_btn.pack(side=tk.BOTTOM, pady=10)
+        ErrorWindow(root, "Введён некорректный тип данных", "350x100")
+        return
 
-        elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
-            incorect = ctk.CTkToplevel(root)
-            incorect.title("Ошибка")
-            incorect.geometry("400x180")
-            incorect.resizable(False, False)
-            label = ctk.CTkLabel(incorect,text="Введите сложность в\nдиапазоне от 1 до 10",font=("Arial", 14, "bold"))
-            label.pack(expand=True)
-            incorect_btn = ClassButton(incorect, text="Ок", width=10, command=incorect_close)
-            incorect_btn.pack(side=tk.BOTTOM, pady=10)  
+    # Проверка диапазонов
+    if rows < 5 or rows > 25:
+        ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
+        return # Снова останавливаем функцию при ошибке
+        
+    elif difficult < 1 or difficult > 10:
+        ErrorWindow(root, "Введите сложность в\nдиапазоне от 1 до 10", "300x120")  
+        return
+        
+    elif cell_size < 10:
+        ErrorWindow(root, "Введите размер\nклетки больше 10", "230x120")
+        return  
 
-        elif int(size_cell.get()) < 10:
-            incorect = ctk.CTkToplevel(root)
-            incorect.title("Ошибка")
-            incorect.geometry("280x150")
-            incorect.resizable(False, False)
-            label = ctk.CTkLabel(incorect,text="Введите размер\nклетки больше 10",font=("Arial", 14, "bold"))
-            label.pack(expand=True)
-            incorect_btn = ClassButton(incorect, text="Ок", width=10, command=incorect_close)
-            incorect_btn.pack(side=tk.BOTTOM, pady=10)
- 
-    except ValueError:
-        print("gg")
         
     canvas.delete("all")
     canvas.create_rectangle(100, 100, 100 + cell_size, 100 + cell_size, fill=cell_open_color)
@@ -115,12 +88,10 @@ def tryy():
     canvas.create_text(102 + cell_size + cell_size/2, 98 + cell_size/2, text="🚩", font=("Arial", round(cell_size/3),"bold"), fill=flag_color)
     canvas.create_text(100 + + cell_size/2, 100 + cell_size/2, text="1", font=("Arial", round(cell_size/3),"bold"), fill="blue")
 
-    try:
-        cell_size = int(size_cell.get())
-        calculate_max_size()
-    except ValueError:
-        incorect_type()
-        return
+
+    cell_size = int(size_cell.get())
+    calculate_max_size()
+
     
 # По хорошему переписать одной функцией, но что-то не хочу
 def choose_color():
@@ -158,31 +129,32 @@ def choose_color4():
 def start():
 
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect 
+    # Проверка ввода на некорректные типы данных
     try:
-
-        if int(size.get()) < 5 or int(size.get()) > 25:
-            tryy()  
-
-        elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
-            tryy()  
-
-        elif int(size_cell.get()) < 10:
-            tryy()  
-
-        else:
-            if size.get() != "":
-                rows = cols = int(size.get())
-            if difficultf.get() != "":
-                difficult = int(difficultf.get())
-            if size_cell.get() != "":
-                cell_size = int(size_cell.get())
-            settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
-            print(settings)
-            root.quit()
-
+        cell_size = int(size_cell.get())
+        difficult = int(difficultf.get())
+        rows = cols = int(size.get())
     except ValueError:
-        incorect_type()
-     
+        ErrorWindow(root, "Введён некорректный тип данных", "350x100")
+        return
+    
+    # Проверка диапазонов
+    if rows < 5 or rows > 25:
+        ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
+        return # Снова останавливаем функцию при ошибке
+        
+    elif difficult < 1 or difficult > 10:
+        ErrorWindow(root, "Введите сложность в\nдиапазоне от 1 до 10", "300x120")  
+        return
+        
+    elif cell_size < 10:
+        ErrorWindow(root, "Введите размер\nклетки больше 10", "230x120")
+        return
+    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
+    print(settings)
+    root.quit()
+
+
 # Функция для расчёта максимального рекомендованного размера поля в зависимости от размера клетки и разрешения экрана           
 def calculate_max_size():
     try:
