@@ -11,8 +11,9 @@ cell_def_color = "#474747" # Цвет клеток
 cell_open_color = "#CDCDCD" # Цвет чистой клетки
 cell_outline_color = "#0006bd" # Цвет активной обводки
 flag_color = "#0c8628" # Цвет флага
+theme_color = "system" # light,dark или system
 
-ctk.set_appearance_mode("system") # Глобальная тема зависящая от системных настроек
+ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
 ctk.deactivate_automatic_dpi_awareness()
@@ -42,18 +43,17 @@ class ErrorWindow(ctk.CTkToplevel):
         label.pack(expand=True, pady=10)
         btn = ClassButton(self, text="Ок", command=self.destroy)
         btn.pack(side="bottom", pady=10)
+        self.attributes('-topmost', True) # Чтобы ошибка поверх вылазила
 
-# Настройки для сетевой игры
+# Настройки для игры
 game_mode = 'single'
-# player_name = 'Игрок'
-# host_ip = '127.0.0.1'
 
 settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
 root = ctk.CTk() 
 
 # Отрисовка тестового отображения клеток
 def tryy():
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings
     
     # Проверка ввода на некорректные типы данных
     try:
@@ -67,7 +67,7 @@ def tryy():
     # Проверка диапазонов
     if rows < 5 or rows > 25:
         ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
-        return # Снова останавливаем функцию при ошибке
+        return
         
     elif difficult < 1 or difficult > 10:
         ErrorWindow(root, "Введите сложность в\nдиапазоне от 1 до 10", "300x120")  
@@ -141,7 +141,7 @@ def start():
     # Проверка диапазонов
     if rows < 5 or rows > 25:
         ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
-        return # Снова останавливаем функцию при ошибке
+        return 
         
     elif difficult < 1 or difficult > 10:
         ErrorWindow(root, "Введите сложность в\nдиапазоне от 1 до 10", "300x120")  
@@ -173,30 +173,30 @@ def calculate_max_size():
 def menu():
     global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root
     root.title("Меню настроек игры")
-    root.geometry("600x480")
+    root.geometry("600x560")
     root.resizable(False, False)
 
     # Левый фрейм
-    frame_left = ctk.CTkFrame(root, width=300, height=480)
+    frame_left = ctk.CTkFrame(root, width=300, height=560)
     frame_left.pack(side="left")
     frame_left.pack_propagate(False)
     
     # Выясняем размеры поля
-    label = ctk.CTkLabel(frame_left, text="Размер поля (в клетках)")
+    label = ctk.CTkLabel(frame_left, text="Размер поля в клетках (от 5 до 25)")
     label.pack(pady=5)
     size = ctk.CTkEntry(frame_left)
     size.insert(0, 10)
     size.pack(pady=5)
    
     # Выясняем сложность
-    label = ctk.CTkLabel(frame_left, text="Сложность 1-10")
+    label = ctk.CTkLabel(frame_left, text="Сложность от 1 до 10")
     label.pack(pady=5)
     difficultf = ctk.CTkEntry(frame_left)
     difficultf.insert(0, 5)
     difficultf.pack(pady=5)
     
     # Выясняем размер клетки
-    label = ctk.CTkLabel(frame_left, text="Размер клетки в пикселях")
+    label = ctk.CTkLabel(frame_left, text="Размер клетки в пикселях (от 10)")
     label.pack(pady=5)
     size_cell = ctk.CTkEntry(frame_left)
     size_cell.insert(0, 50)
@@ -233,39 +233,25 @@ def menu():
     btn4.pack(pady=5)
 
     # Правый фрейм 
-    frame_right = ctk.CTkFrame(root, width=300, height=480)
+    frame_right = ctk.CTkFrame(root, width=300, height=560)
     frame_right.pack(side="right")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
     global canvas
-    canvas = tk.Canvas(frame_right, width=280, height=200, bg="#595959", highlightthickness=0, borderwidth=0)
+    canvas = tk.Canvas(frame_right, width=280, height=200, bg="#9A9A9A", highlightthickness=0, borderwidth=0)
     canvas.pack(pady=20)
 
     # Кнопка и надпись справа
     label = ctk.CTkLabel(frame_right, text="Если не выставить настройки,\nбудут применены настройки по умолчанию")
-    label.pack(pady=5)
+    label.pack(pady=10)
+    label = ctk.CTkLabel(frame_right, text="Вводите значения в формате\n целых чисел без единиц измерения", font=("Arial", 14), text_color="red")
+    label.pack(pady=10)
     btn_try = ClassButton(frame_right, text="Опробовать", command=tryy)
     btn_try.pack(side=tk.BOTTOM, pady=10) # ВНИМАНИЕ ЯРИК!!! PADY ЭТО ОТСТУП ПО Y, PADX ПО X. ВРОДЕ ЛОГИЧНО НО ЧТО-ТО НЕ ПОНЯТНО.
     if game_mode == 'single':
         btn_start = ClassButton(frame_right, text="Старт", command=start)
-        btn_start.pack(side=tk.BOTTOM, pady=10)
-    # elif game_mode == 'host':
-    #     btn_start = ClassButton(frame_right, text="Старт", command=host_menu, width=10)
-    #     btn_start.pack(side=tk.BOTTOM, pady=10)
-    
+        btn_start.pack(side=tk.BOTTOM, pady=10)    
     
 root.withdraw() # Прячем "Родительское" меню
-
-# #Функция для получения локального IP адреса
-# def get_local_ip():
-#     try:
-#         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # По ip4 создаём сокет без установления соединения
-#         s.connect(("8.8.8.8", 80)) # Стучимся на гугловский днс
-#         ip = s.getsockname()[0] # Получаем свой IP адрес из сокета
-#         s.close() # закрываем сокет
-#         return ip
-#     except:
-#         return "127.0.0.1" # Затычка если не достучался
-
 
 def single_st():
     global game_mode
@@ -274,113 +260,16 @@ def single_st():
     root.deiconify() # Показываем "Родительское" меню
     menu()
 
-# def online_st():
-#     global game_mode, player_name, host_ip
-#     game_mode = 'online'
-#     select.destroy()
-#     online_win = ctk.CTkToplevel(root)
-#     online_win.title("Подключение к игре")
-#     online_win.geometry("300x180")
-    
-#     ctk.CTkLabel(online_win, text="Введите ваше имя:").pack(pady=10)
-#     name_entry = ctk.CTkEntry(online_win)
-#     name_entry.insert(0, "Игрок")
-#     name_entry.pack(pady=5)
-    
-#     ctk.CTkLabel(online_win, text="IP адрес Хоста:").pack(pady=5)
-#     ip_entry = ctk.CTkEntry(online_win)
-#     ip_entry.insert(0, "127.0.0.1")
-#     ip_entry.pack(pady=5)
-    
-#     def online_setting_menu():
-#         global player_name, host_ip, settings
-#         player_name = name_entry.get()
-#         host_ip = ip_entry.get()
-#         online_win.destroy()
-#         settings = [10, 10, 1, 50, "#c0c0c0", "white", "red", "green", game_mode, player_name, host_ip] # Затычка
-#         root.quit()
-        
-#     ClassButton(online_win, text="Далее", command=online_setting_menu).pack(pady=10)
-
-# def host_st():
-#     global game_mode
-#     game_mode = 'host'
-#     select.destroy()
-#     host_win = ctk.CTkToplevel(root)
-#     host_win.title("Создание сервера")
-#     host_win.geometry("300x150")
-    
-#     ctk.CTkLabel(host_win, text="Введите ваше имя:").pack(pady=10)
-#     name_entry = ctk.CTkEntry(host_win)
-#     name_entry.insert(0, "Хост")
-#     name_entry.pack(pady=5)
-    
-#     def host_setting_menu():
-#         global player_name
-#         player_name = name_entry.get()
-#         host_win.destroy()
-#         root.deiconify()
-#         menu()
-        
-#     ClassButton(host_win, text="Далее", command=host_setting_menu).pack(pady=10)
-    
-    
-# def host_menu():
-#     global settings
-#     print("Меню создания сервера")
-#     try:
-#         if int(size.get()) < 5 or int(size.get()) > 25:
-#             tryy()  
-
-#         elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
-#             tryy()  
-
-#         elif int(size_cell.get()) < 10:
-#             tryy()  
-#         else:
-#             if size.get() != "":
-#                 rows = cols = int(size.get())
-#             if difficultf.get() != "":
-#                 difficult = int(difficultf.get())
-#             if size_cell.get() != "":
-#                 cell_size = int(size_cell.get())   
-#     except ValueError:
-#         incorect_type()
-#         return
-
-#     ip_local = get_local_ip()
-#     settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode, player_name, ip_local]
-#     print(settings)
-    
-#     for widget in root.winfo_children(): 
-#         widget.destroy()
-
-        
-#     root.geometry("350x250")
-#     label1 = ctk.CTkLabel(root, text="Лобби игры", font=("Arial", 14, "bold"))
-#     label1.pack(pady=15)
-#     label2 = ctk.CTkLabel(root, text="Сообщите этот IP второму игроку:", font=("Arial", 10))
-#     label2.pack(pady=5)
-#     label3 = ctk.CTkLabel(root, text=ip_local, font=("Arial", 14, "bold"), fg="blue")
-#     label3.pack(pady=5)
-#     start_btn = ClassButton(root, text="Запустить игру", width=15, command=root.quit)
-#     start_btn.pack(pady=10)
-
-
 def win_select_mode():
     global select, root
     select = ctk.CTkToplevel(root)
     select.title("Выбор режима")
     select.geometry("350x120")
     select.resizable(False, False)
-    label =ctk.CTkLabel(select, text="Сапёр Онлайн", font=("Arial", 16, "bold"))
+    label =ctk.CTkLabel(select, text="Сапёр Офлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
     single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(), single_st()])
     single_btn.pack(pady=10)
-    # online_btn = ClassButton(select, text="Сетевая игра", width=20, command=lambda: [select.destroy(), online_st()])
-    # online_btn.pack(pady=10)
-    # host_btn = ClassButton(select, text="Создать лобби", width=20, command=lambda: [select.destroy(), host_st()])
-    # host_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
 win_select_mode()

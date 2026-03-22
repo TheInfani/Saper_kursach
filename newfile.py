@@ -20,8 +20,9 @@ flag_color = settings[7] # "green" # Цвет флага
 # random.seed(random_seed) # Установка сида
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
+theme_color = "system" # light,dark или system
 
-ctk.set_appearance_mode("dark") # Глобальная тема зависящая от системных настроек
+ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
 ctk.deactivate_automatic_dpi_awareness()
