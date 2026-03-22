@@ -6,8 +6,6 @@ from tkinter import *
 from menu import *
 import math
 
-win_select_mode()
-
 rows = settings[0] # 10 # Количество строк
 cols = settings[1] # 10 # Количество колонок
 cell_size = settings[3] # 50 # Размер клетки
@@ -16,6 +14,8 @@ cell_def_color = settings[4] # "gray" # Цвет клеток
 cell_open_color = settings[5] # "white" # Цвет открытой клетки
 cell_outline_color = settings[6] # "red" # Цвет активной обводки
 flag_color = settings[7] # "green" # Цвет флага
+random_seed = random.randint(0, 99999) # Cид для генерации мин
+random.seed(random_seed) # Установка сида
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
 

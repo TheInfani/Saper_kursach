@@ -1,5 +1,4 @@
-# А мне ещё переводить на укр всё...
-
+import socket
 import tkinter as tk
 from tkinter import colorchooser
 
@@ -156,7 +155,7 @@ def start():
                 difficult = int(difficultf.get())
             if size_cell.get() != "":
                 cell_size = int(size_cell.get())
-            settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color]
+            settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode, player_name, host_ip]
             print(settings)
             root.quit()
 
@@ -179,7 +178,7 @@ def calculate_max_size():
 
 # Основное меню
 def menu():
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root
     settings = {}
     root.title("Меню настроек игры")
     root.geometry("600x480")
@@ -254,18 +253,126 @@ def menu():
     label.pack(pady=5)
     btn_try = tk.Button(frame_right, text="Опробовать", command=tryy, width=10)
     btn_try.pack(side=tk.BOTTOM, pady=10) # ВНИМАНИЕ ЯРИК!!! PADY ЭТО ОТСТУП ПО Y, PADX ПО X. ВРОДЕ ЛОГИЧНО НО ЧТО-ТО НЕ ПОНЯТНО.
-    btn_start = tk.Button(frame_right, text="Старт", command=start, width=10)
-    btn_start.pack(side=tk.BOTTOM, pady=10)
+    if game_mode == 'single':
+        btn_start = tk.Button(frame_right, text="Старт", command=start, width=10)
+        btn_start.pack(side=tk.BOTTOM, pady=10)
+    elif game_mode == 'host':
+        btn_start = tk.Button(frame_right, text="Старт", command=host_menu, width=10)
+        btn_start.pack(side=tk.BOTTOM, pady=10)
     
     
 root.withdraw() # Прячем "Родительское" меню
 
-def single_menu():
+#Функция для получения локального IP адреса
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # По ip4 создаём сокет без установления соединения
+        s.connect(("8.8.8.8", 80)) # Стучимся на гугловский днс
+        ip = s.getsockname()[0] # Получаем свой IP адрес из сокета
+        s.close() # закрываем сокет
+        return ip
+    except:
+        return "127.0.0.1" # Затычка если не достучался
+
+
+def single_st():
     global game_mode
     game_mode = 'single'
     select.destroy()
     root.deiconify() # Показываем "Родительское" меню
     menu()
+
+def online_st():
+    global game_mode, player_name, host_ip
+    game_mode = 'online'
+    select.destroy()
+    online_win = tk.Toplevel(root)
+    online_win.title("Подключение к игре")
+    online_win.geometry("300x180")
+    
+    tk.Label(online_win, text="Введите ваше имя:").pack(pady=10)
+    name_entry = tk.Entry(online_win)
+    name_entry.insert(0, "Игрок")
+    name_entry.pack(pady=5)
+    
+    tk.Label(online_win, text="IP адрес Хоста:").pack(pady=5)
+    ip_entry = tk.Entry(online_win)
+    ip_entry.insert(0, "127.0.0.1")
+    ip_entry.pack(pady=5)
+    
+    def online_setting_menu():
+        global player_name, host_ip, settings
+        player_name = name_entry.get()
+        host_ip = ip_entry.get()
+        online_win.destroy()
+        settings = [10, 10, 1, 50, "#c0c0c0", "white", "red", "green", game_mode, player_name, host_ip] # Затычка
+        root.quit()
+        
+    tk.Button(online_win, text="Далее", command=online_setting_menu).pack(pady=10)
+
+def host_st():
+    global game_mode
+    game_mode = 'host'
+    select.destroy()
+    host_win = tk.Toplevel(root)
+    host_win.title("Создание сервера")
+    host_win.geometry("300x150")
+    
+    tk.Label(host_win, text="Введите ваше имя:").pack(pady=10)
+    name_entry = tk.Entry(host_win)
+    name_entry.insert(0, "Хост")
+    name_entry.pack(pady=5)
+    
+    def host_setting_menu():
+        global player_name
+        player_name = name_entry.get()
+        host_win.destroy()
+        root.deiconify()
+        menu()
+        
+    tk.Button(host_win, text="Далее", command=host_setting_menu).pack(pady=10)
+    
+    
+def host_menu():
+    global settings
+    print("Меню создания сервера")
+    try:
+        if int(size.get()) < 5 or int(size.get()) > 25:
+            tryy()  
+
+        elif int(difficultf.get()) < 1 or int(difficultf.get()) > 10:
+            tryy()  
+
+        elif int(size_cell.get()) < 10:
+            tryy()  
+        else:
+            if size.get() != "":
+                rows = cols = int(size.get())
+            if difficultf.get() != "":
+                difficult = int(difficultf.get())
+            if size_cell.get() != "":
+                cell_size = int(size_cell.get())   
+    except ValueError:
+        incorect_type()
+        return
+
+    ip_local = get_local_ip()
+    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode, player_name, ip_local]
+    print(settings)
+    
+    for widget in root.winfo_children(): 
+        widget.destroy()
+
+        
+    root.geometry("350x250")
+    label1 = tk.Label(root, text="Лобби игры", font=("Arial", 14, "bold"))
+    label1.pack(pady=15)
+    label2 = tk.Label(root, text="Сообщите этот IP второму игроку:", font=("Arial", 10))
+    label2.pack(pady=5)
+    label3 = tk.Label(root, text=ip_local, font=("Arial", 14, "bold"), fg="blue")
+    label3.pack(pady=5)
+    start_btn = tk.Button(root, text="Запустить игру", width=15, bg="lightgreen", command=root.quit)
+    start_btn.pack(pady=10)
 
 
 def win_select_mode():
@@ -276,15 +383,16 @@ def win_select_mode():
     select.resizable(False, False)
     label =tk.Label(select, text="Сапёр Онлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
-    single_btn = tk.Button(select, text="Одиночная игра", width=20, command=lambda: [select.destroy(), single_menu()])
+    single_btn = tk.Button(select, text="Одиночная игра", width=20, command=lambda: [select.destroy(), single_st()])
     single_btn.pack(pady=10)
-    online_btn = tk.Button(select, text="Сетевая игра", width=20, command=lambda: [select.destroy(), menu()])
+    online_btn = tk.Button(select, text="Сетевая игра", width=20, command=lambda: [select.destroy(), online_st()])
     online_btn.pack(pady=10)
-    host_btn = tk.Button(select, text="Создать лобби", width=20, command=lambda: [select.destroy(), menu()])
+    host_btn = tk.Button(select, text="Создать лобби", width=20, command=lambda: [select.destroy(), host_st()])
     host_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
 win_select_mode()
+
 
 
 root.mainloop()    
