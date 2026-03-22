@@ -5,6 +5,8 @@ import sys
 from tkinter import *
 from menu import *
 import math
+import customtkinter as ctk
+
 
 rows = settings[0] # 10 # Количество строк
 cols = settings[1] # 10 # Количество колонок
@@ -14,10 +16,32 @@ cell_def_color = settings[4] # "gray" # Цвет клеток
 cell_open_color = settings[5] # "white" # Цвет открытой клетки
 cell_outline_color = settings[6] # "red" # Цвет активной обводки
 flag_color = settings[7] # "green" # Цвет флага
-random_seed = random.randint(0, 99999) # Cид для генерации мин
-random.seed(random_seed) # Установка сида
+# random_seed = random.randint(0, 99999) # Cид для генерации мин
+# random.seed(random_seed) # Установка сида
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
+
+ctk.set_appearance_mode("dark") # Глобальная тема зависящая от системных настроек
+ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
+
+ctk.deactivate_automatic_dpi_awareness()
+
+# Класс для кнопок
+class ClassButton(ctk.CTkButton):
+    def __init__(self, master, text, command):
+        super().__init__(
+            master=master,             # root
+            text=text,                 # Текст на кнопке
+            command=command,           # Функция при нажатии
+            width=50,                  # Ширина
+            height=25,                 # Высота
+            fg_color="#515151",        # Цвет кнопки
+            hover_color="#373737",     # Цвет при наведении мыши
+            text_color="white",        # Цвет текста
+            corner_radius=8,           # Закругленные углы
+            font=ctk.CTkFont(size=12) # Шрифт
+        )
+
 
 for widget in root.winfo_children():
     widget.destroy()
@@ -77,7 +101,7 @@ for i in range(rows):
      
 # Создаем основное окно
 root.deiconify()
-root.title("Tkinter")
+root.title("Сапер")
 if cols*cell_size >= 350:
     root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + 130}")
 else:
@@ -85,7 +109,7 @@ else:
 root.resizable(False, False)
 
 # Создаем холст (Canvas) в верхней части окна
-canvas = tk.Canvas(root, width=(cols*cell_size)+cols+4, height=(rows*cell_size)+rows) 
+canvas = ctk.CTkCanvas(root, width=(cols*cell_size)+cols+4, height=(rows*cell_size)+rows, bg = "#242424", highlightthickness=0, borderwidth=0) 
 canvas.pack(pady=10)
 
 # Обработчик кликов
@@ -120,7 +144,7 @@ root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
-mins_label = tk.Label(root, text="Откройте первую клетку", font=("Arial", 12))
+mins_label = ctk.CTkLabel(root, text="Откройте первую клетку", font=("Arial", 12))
 mins_label.pack(side=tk.TOP, pady=5)
 
 def kva(stor, kolv_str, kolv_stbl, colors):
@@ -267,7 +291,7 @@ def open_cell(x, y):
         matrix_flag[x-1][y-1] = 0
         global min_count
         min_count += 1
-        mins_label.config(text=f"Флажков: {min_count}")
+        mins_label.configure(text=f"Флажков: {min_count}")
         
     # Открытие клетки
     matrix_open[x-1][y-1] = 1
@@ -309,7 +333,7 @@ def scan():
                     if matrix[i-1][j-1] == 1:
                         min_count -= 1
                     matrix[i-1][j-1] = 0
-        mins_label.config(text=f"Флажков: {min_count}")
+        mins_label.configure(text=f"Флажков: {min_count}")
         first_click = 1
     
     open_cell(ncol, nrow)
@@ -322,14 +346,14 @@ def flag(ncol=ncol, nrow=nrow):
         draw_text(ncol, nrow, "🚩")
         matrix_flag[ncol-1][nrow-1] = 1
         min_count -= 1
-        mins_label.config(text=f"Флажков: {min_count}") # Обновление текста с количеством флажков
+        mins_label.configure(text=f"Флажков: {min_count}") # Обновление текста с количеством флажков
     elif matrix_flag[ncol-1][nrow-1] == 1 and matrix_open[ncol-1][nrow-1] == 0:
             x1 = ncol * (cell_size + 1) - cell_size + 1
             y1 = nrow * (cell_size + 1) - cell_size + 1
             canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
             matrix_flag[ncol-1][nrow-1] = 0
             min_count += 1
-            mins_label.config(text=f"Флажков: {min_count}")
+            mins_label.configure(text=f"Флажков: {min_count}")
     if matrix_flag[ncol-1][nrow-1] == matrix[ncol-1][nrow-1] == 1:
         matrix_win[ncol-1][nrow-1] = 1
     else:
@@ -341,14 +365,14 @@ def flag(ncol=ncol, nrow=nrow):
 # Экран победы
 def show_win_window():
     global win
-    win = tk.Toplevel(root)
+    win = ctk.CTkToplevel(root)
     win.title("Победа!")
     win.geometry("300x150")
     win.resizable(False, False)
     
-    label = tk.Label(win,text=f"Вы победили!\nСложность была: {difficult}",font=("Arial", 14, "bold"))
+    label = ctk.CTkLabel(win,text=f"Вы победили!\nСложность была: {difficult}",font=("Arial", 14, "bold"))
     label.pack(expand=True)
-    win_btn = tk.Button(win, text="Новая игра", width=10, command=lambda:restart(win))
+    win_btn = ctk.CTkButton(win, text="Новая игра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
     
     # Блокировка основного окна при открытии окна поражения
@@ -358,6 +382,7 @@ def show_win_window():
     # При закрытии окна крестиком срабатывает выход в меню
     win.protocol("WM_DELETE_WINDOW", lambda: restart(win))
 
+# Открытие всех мин при поражении
 def open_all_mines():
     for i in range(cols):
         for j in range(rows):
@@ -367,15 +392,15 @@ def open_all_mines():
 # Экран поражения
 def show_lose_window():
     global lose
-    lose = tk.Toplevel(root)
+    lose = ctk.CTkToplevel(root)
     lose.title("Поражение!")
     lose.geometry("300x150")
     lose.resizable(False, False)
-    label = tk.Label(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
+    label = ctk.CTkLabel(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
     label.pack(expand=True)
     open_all_mines()
     
-    btn_menu = tk.Button(lose, text="В меню", width=10, command=lambda: restart(lose))
+    btn_menu = ctk.CTkButton(lose, text="В меню", width=10, command=lambda: restart(lose))
     btn_menu.pack(side=tk.BOTTOM, pady=10)
 
     # Блокировка основного окна при открытии окна поражения
@@ -392,35 +417,38 @@ def restart(windows):
 # *sys.argv применяет текущие аргументы командой строки, sys.executable исходный путь к интерпритатору
                                         
 # КНОПКИ
-frame_bottom = tk.Frame(root)
+frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
 frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
+center_frame = ctk.CTkFrame(frame_bottom, fg_color="transparent")
+center_frame.pack(expand=True)
+
 # Кнопка влево
-tk_button_left = tk.Button(frame_bottom, text="Left", width=7, command=mleft)
+tk_button_left = ClassButton(center_frame, text="Left", command=mleft)
 tk_button_left.pack(side=tk.LEFT, padx=1)
 
 # Фрейм под кнопки Up и Down
-frame_ud = tk.Frame(frame_bottom)
+frame_ud = ctk.CTkFrame(center_frame, fg_color="transparent")
 frame_ud.pack(side=tk.LEFT, padx=1)
 
 # Кнопка вверх
-tk_button_up = tk.Button(frame_ud, text="Up", width=7, command=mup)
+tk_button_up = ClassButton(frame_ud, text="Up", command=mup)
 tk_button_up.pack(side=tk.TOP, padx=1)
 
 # Кнопка вниз
-tk_button_down = tk.Button(frame_ud, text="Down", width=7, command=mdown)
+tk_button_down = ClassButton(frame_ud, text="Down", command=mdown)
 tk_button_down.pack(side=tk.BOTTOM, padx=1)
 
 # Кнопка вправо
-tk_button_right = tk.Button(frame_bottom, text="Right", width=7, command=mright)
+tk_button_right = ClassButton(center_frame, text="Right", command=mright)
 tk_button_right.pack(side=tk.LEFT, padx=1)
 
 # Кнопка открыть
-tk_button_open = tk.Button(frame_bottom, text="Open", width=10, command=scan)
+tk_button_open = ClassButton(center_frame, text="Open", command=scan)
 tk_button_open.pack(side=tk.LEFT, padx=20)
 
 # Кнопка флажка
-tk_button_flag = tk.Button(frame_bottom, text="Flag", width=10, command=flag)
+tk_button_flag = ClassButton(center_frame, text="Flag", command=flag)
 tk_button_flag.pack(side=tk.LEFT, padx=1)            
 
 root.mainloop()
