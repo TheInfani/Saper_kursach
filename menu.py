@@ -1,4 +1,3 @@
-import socket
 import tkinter as tk
 from tkinter import colorchooser
 import customtkinter as ctk
@@ -11,6 +10,7 @@ cell_def_color = "#474747" # Цвет клеток
 cell_open_color = "#CDCDCD" # Цвет чистой клетки
 cell_outline_color = "#0006bd" # Цвет активной обводки
 flag_color = "#0c8628" # Цвет флага
+timer = 0 # таймер сеунд на прохождение игры
 theme_color = "system" # light,dark или system
 
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
@@ -48,18 +48,19 @@ class ErrorWindow(ctk.CTkToplevel):
 # Настройки для игры
 game_mode = 'single'
 
-settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
+settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer]
 root = ctk.CTk() 
 
 # Отрисовка тестового отображения клеток
 def tryy():
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer
     
     # Проверка ввода на некорректные типы данных
     try:
         cell_size = int(size_cell.get())
         difficult = int(difficultf.get())
         rows = cols = int(size.get())
+        timer = int(timer_enter.get())
     except ValueError:
         ErrorWindow(root, "Введён некорректный тип данных", "350x100")
         return
@@ -77,6 +78,9 @@ def tryy():
         ErrorWindow(root, "Введите размер\nклетки больше 10", "230x120")
         return  
 
+    elif timer < 0:
+        ErrorWindow(root, "Введите положительное значение времени,\nили 0 для отключения таймера", "400x120")
+        return
         
     canvas.delete("all")
     canvas.create_rectangle(100, 100, 100 + cell_size, 100 + cell_size, fill=cell_open_color)
@@ -128,12 +132,13 @@ def choose_color4():
 
 def start():
 
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, incorect 
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer
     # Проверка ввода на некорректные типы данных
     try:
         cell_size = int(size_cell.get())
         difficult = int(difficultf.get())
         rows = cols = int(size.get())
+        timer = int(timer_enter.get())
     except ValueError:
         ErrorWindow(root, "Введён некорректный тип данных", "350x100")
         return
@@ -150,7 +155,12 @@ def start():
     elif cell_size < 10:
         ErrorWindow(root, "Введите размер\nклетки больше 10", "230x120")
         return
-    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, game_mode]
+    
+    elif timer < 0:
+        ErrorWindow(root, "Введите положительное значение времени,\nили 0 для отключения таймера", "260x120")
+        return
+    
+    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer]
     print(settings)
     root.quit()
 
@@ -171,13 +181,13 @@ def calculate_max_size():
 
 # Основное меню
 def menu():
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root, timer_enter
     root.title("Меню настроек игры")
-    root.geometry("600x560")
+    root.geometry("600x630")
     root.resizable(False, False)
 
     # Левый фрейм
-    frame_left = ctk.CTkFrame(root, width=300, height=560)
+    frame_left = ctk.CTkFrame(root, width=300, height=630)
     frame_left.pack(side="left")
     frame_left.pack_propagate(False)
     
@@ -206,7 +216,14 @@ def menu():
     global lbl_recommended
     lbl_recommended = ctk.CTkLabel(frame_left, text="", text_color="red", font=("Arial", 12, "bold"))
     lbl_recommended.pack(pady=0)
-    calculate_max_size()
+    calculate_max_size()    
+    
+    # Выясняем размер таймера
+    label = ctk.CTkLabel(frame_left, text="Время на прохождение игры\n(в секундах, 0 - без таймера)")
+    label.pack(pady=5)
+    timer_enter = ctk.CTkEntry(frame_left)
+    timer_enter.insert(0, 0)
+    timer_enter.pack(pady=5)
     
     # Выясняем цвет келток по умолчанию
     label = ctk.CTkLabel(frame_left, text="Цвет клеток по умолчанию")
@@ -233,7 +250,7 @@ def menu():
     btn4.pack(pady=5)
 
     # Правый фрейм 
-    frame_right = ctk.CTkFrame(root, width=300, height=560)
+    frame_right = ctk.CTkFrame(root, width=300, height=630)
     frame_right.pack(side="right")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
     global canvas

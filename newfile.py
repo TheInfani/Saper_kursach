@@ -16,8 +16,8 @@ cell_def_color = settings[4] # "gray" # Цвет клеток
 cell_open_color = settings[5] # "white" # Цвет открытой клетки
 cell_outline_color = settings[6] # "red" # Цвет активной обводки
 flag_color = settings[7] # "green" # Цвет флага
-# random_seed = random.randint(0, 99999) # Cид для генерации мин
-# random.seed(random_seed) # Установка сида
+timer = settings[8] # 0 # Время на игру, 0 для отключения таймера
+print(timer)
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
 theme_color = "system" # light,dark или system
@@ -26,6 +26,27 @@ ctk.set_appearance_mode(theme_color) # Глобальная тема завис�
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
 ctk.deactivate_automatic_dpi_awareness()
+
+try:
+    if int(timer) > 0:
+        is_timer_on = 1
+    else:
+        is_timer_on = 0
+except ValueError:
+    is_timer_on = 0
+
+def update_timer():
+    global timer, first_click
+
+    if is_timer_on == 1:
+        if timer <= 0: 
+            show_lose_window(lose_from_min=False)
+            return
+
+    timer -= 1
+    timer_label.configure(text=f"Время: {timer}")
+
+    root.timer_id = root.after(1000, update_timer)
 
 # Класс для кнопок
 class ClassButton(ctk.CTkButton):
@@ -145,8 +166,21 @@ root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
-mins_label = ctk.CTkLabel(root, text="Откройте первую клетку", font=("Arial", 12))
-mins_label.pack(side=tk.TOP, pady=5)
+top_info_frame = ctk.CTkFrame(root, fg_color="transparent")
+top_info_frame.pack(side=tk.TOP, pady=5)
+
+# Текст с флажками
+mins_label = ctk.CTkLabel(top_info_frame, text="Откройте первую клетку", font=("Arial", 12))
+mins_label.pack(side=tk.LEFT, padx=15)
+
+if is_timer_on == 1:
+    timer_text = f"Время: {timer}"
+else:
+    timer_text = "Время: Не установлено"
+
+# Текст таймера
+timer_label = ctk.CTkLabel(top_info_frame, text=timer_text, font=("Arial", 12))
+timer_label.pack(side=tk.LEFT, padx=15)
 
 def kva(stor, kolv_str, kolv_stbl, colors):
     x1 = 0
@@ -308,7 +342,7 @@ def open_cell(x, y):
     
     # КОНЕЦ ИГРЫ НА МИНЕ 
     if matrix[x-1][y-1] == 1:
-        show_lose_window()
+        show_lose_window(lose_from_min=True)
         draw_text(x, y, "💣")
         return
     
@@ -340,6 +374,8 @@ def scan():
                     matrix[i-1][j-1] = 0
         mins_label.configure(text=f"Флажков: {min_count}")
         first_click = 1
+        if is_timer_on == 1:
+            update_timer()
     
     open_cell(ncol, nrow)
                 
@@ -370,6 +406,8 @@ def flag(ncol=ncol, nrow=nrow):
 # Экран победы
 def show_win_window():
     global win
+    if is_timer_on == 1 and hasattr(root, 'timer_id'):
+        root.after_cancel(root.timer_id)
     win = ctk.CTkToplevel(root)
     win.title("Победа!")
     win.geometry("300x150")
@@ -395,13 +433,18 @@ def open_all_mines():
                 draw_text(i+1, j+1, "💣")
 
 # Экран поражения
-def show_lose_window():
+def show_lose_window(lose_from_min=True):
     global lose
+    if is_timer_on == 1 and hasattr(root, 'timer_id'):
+        root.after_cancel(root.timer_id)
     lose = ctk.CTkToplevel(root)
     lose.title("Поражение!")
     lose.geometry("300x150")
     lose.resizable(False, False)
-    label = ctk.CTkLabel(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
+    if lose_from_min:
+        label = ctk.CTkLabel(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
+    else:
+        label = ctk.CTkLabel(lose, text="⌛ВРЕМЯ ВЫШЛО⌛", font=("Arial", 14, "bold"))
     label.pack(expand=True)
     open_all_mines()
     
