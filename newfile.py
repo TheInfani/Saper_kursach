@@ -511,5 +511,4 @@ tk_button_open.pack(side=tk.LEFT, padx=20)
 tk_button_flag = ClassButton(center_frame, text="Flag", command=flag)
 tk_button_flag.pack(side=tk.LEFT, padx=1)            
 
-
 root.mainloop()
