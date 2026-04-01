@@ -2,6 +2,38 @@ import tkinter as tk
 from tkinter import colorchooser
 import customtkinter as ctk
 import webbrowser
+import os
+import pygame
+  
+music_vol = 0.3
+sfx_vol = 0.5   
+  
+# Функция загрузки настроек из файла
+def load_audio_settings():
+    global music_vol, sfx_vol
+    if os.path.exists("audio_settings.txt"): # Проверка наличия файла
+        try:
+            with open("audio_settings.txt", "r") as f:
+                lines = f.readlines()
+                music_vol = float(lines[0].strip())
+                sfx_vol = float(lines[1].strip())
+        except Exception:
+            pass
+
+# Функция сохранения настроек в файл
+def save_audio_settings():
+    with open("audio_settings.txt", "w") as f:
+        f.write(f"{music_vol}\n{sfx_vol}") 
+ 
+pygame.mixer.init()
+load_audio_settings()
+
+snd_open = pygame.mixer.Sound("sounds\\open.mp3")
+snd_loose = pygame.mixer.Sound("sounds\\loose.mp3")
+snd_win = pygame.mixer.Sound("sounds\\win.mp3")
+snd_open.set_volume(sfx_vol)
+snd_win.set_volume(sfx_vol)
+snd_loose.set_volume(sfx_vol)
 
 rows = 10 # Количество строк
 cols = 10 # Количество колонок
@@ -21,10 +53,15 @@ ctk.deactivate_automatic_dpi_awareness()
 
 class ClassButton(ctk.CTkButton):
     def __init__(self, master, text, command):
+        
+        def command_with_sound():
+            snd_open.play()
+            command()
+            
         super().__init__(
             master=master,             # root
             text=text,                 # Текст на кнопке
-            command=command,           # Функция при нажатии
+            command=command_with_sound, # Функция при нажатии
             width=50,                  # Ширина
             height=25,                 # Высота
             fg_color="#515151",        # Цвет кнопки
@@ -271,6 +308,47 @@ def menu():
     
 root.withdraw() # Прячем "Родительское" меню
 
+def setting_window():
+    global sett_w, root
+    sett_w = ctk.CTkToplevel(root)
+    sett_w.title("Настройки звука")
+    sett_w.geometry("350x250")
+    sett_w.resizable(False, False)
+    sett_w.attributes('-topmost', True)
+    
+    def update_music_vol(value):
+        global music_vol
+        music_vol = float(value)
+        pygame.mixer.music.set_volume(music_vol)
+        save_audio_settings()
+    
+    def update_sfx_vol(value):
+        global sfx_vol
+        sfx_vol = float(value)
+        snd_open.play()
+        snd_open.set_volume(sfx_vol)
+        snd_win.set_volume(sfx_vol)
+        snd_loose.set_volume(sfx_vol)
+        save_audio_settings()
+        load_audio_settings()
+    
+    label = ctk.CTkLabel(sett_w, text="🎵 Громкость музыки:", font=("Arial", 14))
+    label.pack(pady=15)
+    slider_music = ctk.CTkSlider(sett_w, from_=0.0, to=1.0, number_of_steps=20, command=update_music_vol) # from_ минимальное значение, to - максимальное значение, command - функция при изменении ползунка!
+    slider_music.set(music_vol) # Ставим ползунок на текущее значение
+    slider_music.pack(pady=5)
+
+    label = ctk.CTkLabel(sett_w, text="🔊 Громкость эффектов:", font=("Arial", 14))
+    label.pack(pady=15)
+    slider_sfx = ctk.CTkSlider(sett_w, from_=0.0, to=1.0,number_of_steps=20, command=update_sfx_vol) # number_of_steps можно задать сколько шагов есть у слайдера
+    slider_sfx.set(sfx_vol) # Ставим ползунок на текущее значение
+    slider_sfx.pack(pady=15)
+    
+    label = ctk.CTkLabel(sett_w, text="Вы можете нажать \"M\" на клавиатуре\nво время игры, для смены настроек", font=("Arial", 14))
+    label.pack(pady=10)
+
+    ctk.CTkButton(sett_w, text="Закрыть", command=sett_w.destroy, width=120).pack(pady=(20, 10))
+
 def single_st():
     global game_mode
     game_mode = 'single'
@@ -281,22 +359,28 @@ def single_st():
 def open_browser():
     webbrowser.open_new_tab("https://github.com/TheInfani/Saper_kursach")
 
+def destroy_st():
+    try:
+        sett_w.destroy()
+    except Exception:
+        pass
+
 def win_select_mode():
-    global select, root
+    global select, root, sett_w
     select = ctk.CTkToplevel(root)
     select.title("Выбор режима")
-    select.geometry("350x160")
+    select.geometry("350x200")
     select.resizable(False, False)
     label =ctk.CTkLabel(select, text="Сапёр Офлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
-    single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(), single_st()])
+    single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(),destroy_st(), single_st()])
     single_btn.pack(pady=10)
     github_btn = ClassButton(select, text="GitHub проекта", command=open_browser)
     github_btn.pack(pady=10)
+    settings_btn = ClassButton(select, text="Настройки", command=setting_window)
+    settings_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
 win_select_mode()
-
-
 
 root.mainloop()    

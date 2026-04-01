@@ -6,8 +6,44 @@ from tkinter import *
 from menu import *
 import math
 import customtkinter as ctk
+try:
+    import pygame
+except ImportError:
+    os.system('pip install pygame')
+    
+music_vol = 0.3
+sfx_vol = 0.5   
+  
+# Функция загрузки настроек из файла
+def load_audio_settings():
+    global music_vol, sfx_vol
+    if os.path.exists("audio_settings.txt"): # Проверка наличия файла
+        try:
+            with open("audio_settings.txt", "r") as f:
+                lines = f.readlines()
+                music_vol = float(lines[0].strip())
+                sfx_vol = float(lines[1].strip())
+        except Exception:
+            pass
 
+# Функция сохранения настроек в файл
+def save_audio_settings():
+    with open("audio_settings.txt", "w") as f:
+        f.write(f"{music_vol}\n{sfx_vol}") 
+ 
+pygame.mixer.init()
+load_audio_settings()
 
+pygame.mixer.music.load("sounds\\best_music.mp3")
+snd_open = pygame.mixer.Sound("sounds\\open.mp3")
+snd_loose = pygame.mixer.Sound("sounds\\loose.mp3")
+snd_win = pygame.mixer.Sound("sounds\\win.mp3")
+pygame.mixer.music.play(loops=-1)
+pygame.mixer.music.set_volume(music_vol)
+snd_open.set_volume(sfx_vol)
+snd_win.set_volume(sfx_vol)
+snd_loose.set_volume(sfx_vol)
+                     
 rows = settings[0] # 10 # Количество строк
 cols = settings[1] # 10 # Количество колонок
 cell_size = settings[3] # 50 # Размер клетки
@@ -54,10 +90,15 @@ def update_timer():
 # Класс для кнопок
 class ClassButton(ctk.CTkButton):
     def __init__(self, master, text, command):
+        
+        def command_with_sound():
+            snd_open.play()
+            command()
+            
         super().__init__(
             master=master,             # root
             text=text,                 # Текст на кнопке
-            command=command,           # Функция при нажатии
+            command=command_with_sound, # Функция при нажатии
             width=50,                  # Ширина
             height=25,                 # Высота
             fg_color="#515151",        # Цвет кнопки
@@ -152,6 +193,14 @@ root.bind('<Right>', lambda event: mright())
 root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
 root.bind('<F5>', lambda event: debug())
+root.bind('<m>', lambda event: setting_window())
+# Альтернанита для руского языка, так как ткинтер не определяет кирилицу
+def keypres(event):
+    print(event.keycode)
+    if event.keycode == 77:
+        setting_window()
+root.bind('<Key>', keypres)
+
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 top_info_frame = ctk.CTkFrame(root, fg_color="transparent")
@@ -213,6 +262,7 @@ canvas.create_rectangle(x1_new - 1, y1_new - 1, x1_new + cell_size + 1, y1_new +
 def mleft():
     global nrow, ncol
     
+    snd_open.play()
     if ncol > 1:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
@@ -229,6 +279,7 @@ def mleft():
 def mright():
     global nrow, ncol
     
+    snd_open.play()
     if ncol < 10:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
@@ -245,6 +296,7 @@ def mright():
 def mup():
     global nrow, ncol
     
+    snd_open.play()
     if nrow > 1:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
@@ -261,6 +313,7 @@ def mup():
 def mdown():
     global nrow, ncol
     
+    snd_open.play()
     if nrow < 10:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
@@ -377,12 +430,14 @@ def scan():
         if is_timer_on == 1:
             update_timer()
     
+    snd_open.play()
     open_cell(ncol, nrow)
                 
 # Установка флага
 def flag(ncol=ncol, nrow=nrow):
     global min_count
     
+    snd_open.play()
     if matrix_flag[nrow-1][ncol-1] == 0 and matrix_open[nrow-1][ncol-1] == 0:
         draw_text(ncol, nrow, "🚩")
         matrix_flag[nrow-1][ncol-1] = 1
@@ -399,6 +454,8 @@ def flag(ncol=ncol, nrow=nrow):
 # Экран победы
 def show_win_window():
     global win
+    pygame.mixer.music.stop()
+    snd_win.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
         root.after_cancel(root.timer_id)
     win = ctk.CTkToplevel(root)
@@ -428,6 +485,8 @@ def open_all_mines():
 # Экран поражения
 def show_lose_window(lose_from_min=True):
     global lose
+    pygame.mixer.music.stop()
+    snd_loose.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
         root.after_cancel(root.timer_id)
     lose = ctk.CTkToplevel(root)
@@ -453,6 +512,7 @@ def show_lose_window(lose_from_min=True):
 
 # Функция перезапуска игры
 def restart(windows):
+    pygame.mixer.music.stop()
     windows.destroy()
     os.execl(sys.executable, sys.executable, *sys.argv) # Перезапуск кода
 # *sys.argv применяет текущие аргументы командой строки, sys.executable исходный путь к интерпритатору
