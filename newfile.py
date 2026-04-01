@@ -9,10 +9,7 @@ import customtkinter as ctk
 try:
     import pygame
 except ImportError:
-    os.system('pip install pygame')
-    
-music_vol = 0.3
-sfx_vol = 0.5   
+    os.system('pip install pygame') 
   
 # Функция загрузки настроек из файла
 def load_audio_settings():
@@ -35,9 +32,6 @@ pygame.mixer.init()
 load_audio_settings()
 
 pygame.mixer.music.load("sounds\\best_music.mp3")
-snd_open = pygame.mixer.Sound("sounds\\open.mp3")
-snd_loose = pygame.mixer.Sound("sounds\\loose.mp3")
-snd_win = pygame.mixer.Sound("sounds\\win.mp3")
 pygame.mixer.music.play(loops=-1)
 pygame.mixer.music.set_volume(music_vol)
 snd_open.set_volume(sfx_vol)

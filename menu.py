@@ -330,15 +330,14 @@ def setting_window():
         snd_win.set_volume(sfx_vol)
         snd_loose.set_volume(sfx_vol)
         save_audio_settings()
-        load_audio_settings()
     
-    label = ctk.CTkLabel(sett_w, text="🎵 Громкость музыки:", font=("Arial", 14))
+    label = ctk.CTkLabel(sett_w, text="Громкость музыки:", font=("Arial", 14))
     label.pack(pady=15)
     slider_music = ctk.CTkSlider(sett_w, from_=0.0, to=1.0, number_of_steps=20, command=update_music_vol) # from_ минимальное значение, to - максимальное значение, command - функция при изменении ползунка!
     slider_music.set(music_vol) # Ставим ползунок на текущее значение
     slider_music.pack(pady=5)
 
-    label = ctk.CTkLabel(sett_w, text="🔊 Громкость эффектов:", font=("Arial", 14))
+    label = ctk.CTkLabel(sett_w, text="Громкость эффектов:", font=("Arial", 14))
     label.pack(pady=15)
     slider_sfx = ctk.CTkSlider(sett_w, from_=0.0, to=1.0,number_of_steps=20, command=update_sfx_vol) # number_of_steps можно задать сколько шагов есть у слайдера
     slider_sfx.set(sfx_vol) # Ставим ползунок на текущее значение
