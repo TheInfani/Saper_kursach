@@ -6,11 +6,37 @@ from tkinter import *
 from menu import *
 import math
 import customtkinter as ctk
-try:
-    import pygame
-except ImportError:
-    os.system('pip install pygame') 
-  
+import pygame
+from PIL import Image, ImageTk, ImageSequence
+
+import customtkinter as ctk
+from PIL import Image, ImageTk, ImageSequence
+
+class AnimatedGif(ctk.CTkLabel):
+    def __init__(self, master):
+        self.img = Image.open("sounds\\gif.gif")
+        self.frames = [ctk.CTkImage(light_image=f.copy(), size=(200, 200)) 
+                       for f in ImageSequence.Iterator(self.img)]
+        
+        super().__init__(master, image=self.frames[0], text="")
+        self.current_frame = 0
+        self.animate()
+
+    def animate(self):
+        self.current_frame = (self.current_frame + 1) % len(self.frames)
+        self.configure(image=self.frames[self.current_frame])
+
+        self.after(60, self.animate)
+
+def pashalka():
+    pash_win = ctk.CTkToplevel(root)
+    pash_win.title("Пасхалка")
+    pash_win.resizable(False, False)
+    pash_win.attributes('-topmost', True)
+    
+    anim = AnimatedGif(pash_win, "sounds\\gif.gif")
+    anim.pack(expand=True)
+
 # Функция загрузки настроек из файла
 def load_audio_settings():
     global music_vol, sfx_vol
@@ -188,13 +214,13 @@ root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
 root.bind('<F5>', lambda event: debug())
 root.bind('<m>', lambda event: setting_window())
+root.bind('<p>', lambda event: pashalka())
 # Альтернанита для руского языка, так как ткинтер не определяет кирилицу
 def keypres(event):
     print(event.keycode)
     if event.keycode == 77:
         setting_window()
 root.bind('<Key>', keypres)
-
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 top_info_frame = ctk.CTkFrame(root, fg_color="transparent")

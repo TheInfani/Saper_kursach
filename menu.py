@@ -3,7 +3,14 @@ from tkinter import colorchooser
 import customtkinter as ctk
 import webbrowser
 import os
-import pygame
+try:
+    import pygame
+except ImportError:
+    os.system('pip install pygame')
+try:
+    from PIL import Image, ImageTk, ImageSequence
+except ImportError:
+    os.system('pip install Pillow')
   
 music_vol = 0.3
 sfx_vol = 0.5   
