@@ -22,6 +22,9 @@ first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
 theme_color = "system" # light,dark или system
 
+# Перезапуск вместо закрытия окна при нажатии на крестик
+root.protocol("WM_DELETE_WINDOW", lambda: restart(root))
+
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
@@ -507,5 +510,6 @@ tk_button_open.pack(side=tk.LEFT, padx=20)
 # Кнопка флажка
 tk_button_flag = ClassButton(center_frame, text="Flag", command=flag)
 tk_button_flag.pack(side=tk.LEFT, padx=1)            
+
 
 root.mainloop()
