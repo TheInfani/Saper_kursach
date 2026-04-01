@@ -104,23 +104,7 @@ for i in range(rows):
     for j in range(cols):
         row.append(0)
     matrix_flag.append(row)
-
-# Матрица победы
-matrix_win = [] 
-for i in range(rows):
-    row = []
-    for j in range(cols):
-        row.append(0)
-    matrix_win.append(row)
-
-# Матрица победы для сравнения
-matrix_win2 = [] 
-for i in range(rows):
-    row = []
-    for j in range(cols):
-        row.append(1)
-    matrix_win2.append(row)
-     
+  
 # Создаем основное окно
 root.deiconify()
 root.title("Сапер")
@@ -164,6 +148,7 @@ root.bind('<Left>', lambda event: mleft())
 root.bind('<Right>', lambda event: mright())
 root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
+root.bind('<F5>', lambda event: debug())
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 top_info_frame = ctk.CTkFrame(root, fg_color="transparent")
@@ -205,7 +190,7 @@ def know(x, y):
     for i in range(x-1, x+2):
         for j in range(y-1, y+2):
            if 1 <= i <= cols and 1 <= j <= rows:
-                if matrix[i-1][j-1] == 1:
+                if matrix[j-1][i-1] == 1:
                     nmbr += 1
                     
     return nmbr
@@ -317,36 +302,48 @@ def draw_text(col, row, char):
         color = "gray"
     canvas.create_text(x, y, text=str(char), font=("Arial", num_size,"bold"), fill=color)
 
+# Проверка победы
+def check_win():
+    total_cells = rows * cols
+    mine_cells = 0
+    for row in matrix:
+        mine_cells += row.count(1)
+        
+    opened_cells = 0
+    for row in matrix_open:
+        opened_cells += row.count(1)
+        
+    return opened_cells == (total_cells - mine_cells)
+
 # Алгоритм открывания и рекурсия
 def open_cell(x, y):
     if x < 1 or x > cols or y < 1 or y > rows:
         return
     
     # Проверка клетки
-    if matrix_open[x-1][y-1] == 1:
+    if matrix_open[y-1][x-1] == 1:
         return
     
-    if matrix_flag[x-1][y-1] == 1:
-        matrix_flag[x-1][y-1] = 0
+    if matrix_flag[y-1][x-1] == 1:
+        matrix_flag[y-1][x-1] = 0
         global min_count
         min_count += 1
         mins_label.configure(text=f"Флажков: {min_count}")
         
     # Открытие клетки
-    matrix_open[x-1][y-1] = 1
-    matrix_win[x-1][y-1] = 1
+    matrix_open[y-1][x-1] = 1
     
     x1 = x * (cell_size + 1) - cell_size + 1
     y1 = y * (cell_size + 1) - cell_size + 1
     canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_open_color)
     
     # КОНЕЦ ИГРЫ НА МИНЕ 
-    if matrix[x-1][y-1] == 1:
+    if matrix[y-1][x-1] == 1:
         show_lose_window(lose_from_min=True)
         draw_text(x, y, "💣")
         return
     
-    if matrix_win == matrix_win2:
+    if check_win():
         show_win_window()
                         
     count = know(x, y)  
@@ -369,9 +366,9 @@ def scan():
         for i in range(x-1, x+2):
             for j in range(y-1, y+2):
                 if 1 <= i <= cols and 1 <= j <= rows:
-                    if matrix[i-1][j-1] == 1:
+                    if matrix[j-1][i-1] == 1:
                         min_count -= 1
-                    matrix[i-1][j-1] = 0
+                    matrix[j-1][i-1] = 0
         mins_label.configure(text=f"Флажков: {min_count}")
         first_click = 1
         if is_timer_on == 1:
@@ -383,25 +380,18 @@ def scan():
 def flag(ncol=ncol, nrow=nrow):
     global min_count
     
-    if matrix_flag[ncol-1][nrow-1] == 0 and matrix_open[ncol-1][nrow-1] == 0:
+    if matrix_flag[nrow-1][ncol-1] == 0 and matrix_open[nrow-1][ncol-1] == 0:
         draw_text(ncol, nrow, "🚩")
-        matrix_flag[ncol-1][nrow-1] = 1
+        matrix_flag[nrow-1][ncol-1] = 1
         min_count -= 1
         mins_label.configure(text=f"Флажков: {min_count}") # Обновление текста с количеством флажков
-    elif matrix_flag[ncol-1][nrow-1] == 1 and matrix_open[ncol-1][nrow-1] == 0:
+    elif matrix_flag[nrow-1][ncol-1] == 1 and matrix_open[nrow-1][ncol-1] == 0:
             x1 = ncol * (cell_size + 1) - cell_size + 1
             y1 = nrow * (cell_size + 1) - cell_size + 1
             canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
-            matrix_flag[ncol-1][nrow-1] = 0
+            matrix_flag[nrow-1][ncol-1] = 0
             min_count += 1
             mins_label.configure(text=f"Флажков: {min_count}")
-    if matrix_flag[ncol-1][nrow-1] == matrix[ncol-1][nrow-1] == 1:
-        matrix_win[ncol-1][nrow-1] = 1
-    else:
-        matrix_win[ncol-1][nrow-1] = 0
-    
-    if matrix_win == matrix_win2:
-        show_win_window()
 
 # Экран победы
 def show_win_window():
@@ -429,7 +419,7 @@ def show_win_window():
 def open_all_mines():
     for i in range(cols):
         for j in range(rows):
-            if matrix[i][j] == 1:
+            if matrix[j][i] == 1:
                 draw_text(i+1, j+1, "💣")
 
 # Экран поражения
@@ -463,7 +453,26 @@ def restart(windows):
     windows.destroy()
     os.execl(sys.executable, sys.executable, *sys.argv) # Перезапуск кода
 # *sys.argv применяет текущие аргументы командой строки, sys.executable исходный путь к интерпритатору
-                                        
+
+# ФУНКЦИЯ ОКНА ОТЛАДКИ  
+def debug():
+    debug_win = ctk.CTkToplevel(root)
+    debug_win.title("Debug")
+    debug_win.resizable(True, False)
+    debug_win.attributes('-topmost', True) # Чтобы окно поверх вылазило
+    
+    # Конвертируем матрицу в табличный вид 
+    matrix_table = ""
+    for row in matrix:               
+        for cell in row:            
+            matrix_table += str(cell) + "   " 
+        matrix_table += "\n"
+        
+    label_name = ctk.CTkLabel(debug_win, text="Матрица мин", font=("Arial", 16, "bold"))
+    label_name.pack(side=tk.TOP, pady=25)
+    label = ctk.CTkLabel(debug_win, text=matrix_table, font=("Arial", 12, "bold"))
+    label.pack(expand=True, padx=25, pady=25)
+                                     
 # КНОПКИ
 frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
 frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)

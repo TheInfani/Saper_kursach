@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import colorchooser
 import customtkinter as ctk
+import webbrowser
 
 rows = 10 # Количество строк
 cols = 10 # Количество колонок
@@ -277,16 +278,21 @@ def single_st():
     root.deiconify() # Показываем "Родительское" меню
     menu()
 
+def open_browser():
+    webbrowser.open_new_tab("https://github.com/TheInfani/Saper_kursach")
+
 def win_select_mode():
     global select, root
     select = ctk.CTkToplevel(root)
     select.title("Выбор режима")
-    select.geometry("350x120")
+    select.geometry("350x160")
     select.resizable(False, False)
     label =ctk.CTkLabel(select, text="Сапёр Офлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
     single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(), single_st()])
     single_btn.pack(pady=10)
+    github_btn = ClassButton(select, text="GitHub проекта", command=open_browser)
+    github_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
 win_select_mode()
