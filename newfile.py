@@ -9,11 +9,8 @@ import customtkinter as ctk
 import pygame
 from PIL import Image, ImageTk, ImageSequence
 
-import customtkinter as ctk
-from PIL import Image, ImageTk, ImageSequence
-
 class AnimatedGif(ctk.CTkLabel):
-    def __init__(self, master):
+    def __init__(self, master, path):
         self.img = Image.open("sounds\\gif.gif")
         self.frames = [ctk.CTkImage(light_image=f.copy(), size=(200, 200)) 
                        for f in ImageSequence.Iterator(self.img)]
@@ -33,7 +30,13 @@ def pashalka():
     pash_win.title("Пасхалка")
     pash_win.resizable(False, False)
     pash_win.attributes('-topmost', True)
-    
+    win_w = 220
+    win_h = 220
+    screen_w = pash_win.winfo_screenwidth()
+    screen_h = pash_win.winfo_screenheight()
+    random_x = random.randint(0, screen_w - win_w)
+    random_y = random.randint(0, screen_h - win_h)
+    pash_win.geometry(f"{win_w}x{win_h}+{random_x}+{random_y}")
     anim = AnimatedGif(pash_win, "sounds\\gif.gif")
     anim.pack(expand=True)
 
