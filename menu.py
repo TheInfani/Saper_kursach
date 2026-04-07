@@ -1,20 +1,16 @@
 import tkinter as tk
 from tkinter import colorchooser
-import customtkinter as ctk
 import webbrowser
 import os
 import sys
 try:
+    import customtkinter as ctk
     import pygame
-except ImportError:
-    os.system('pip install pygame')
-    os.system('pip install pygame-ce')
-    os.execl(sys.executable, sys.executable, *sys.argv)
-try:
     from PIL import Image, ImageTk, ImageSequence
 except ImportError:
-    os.system('pip install Pillow')
-  
+    os.system('pip install -r requirements.txt')
+    os.execl(sys.executable, sys.executable, *sys.argv)
+    
 music_vol = 0.3
 sfx_vol = 0.5   
   

@@ -7,7 +7,10 @@ from menu import *
 import math
 import customtkinter as ctk
 import pygame
-from PIL import Image, ImageTk, ImageSequence
+from PIL import Image, ImageSequence
+
+
+isInGame = True
 
 class AnimatedGif(ctk.CTkLabel):
     def __init__(self, master, path):
@@ -187,6 +190,8 @@ canvas.pack(pady=10)
 
 # Обработчик кликов
 def handle_click(event):
+    if isInGame == False:
+        return
     # Фикс с обводкой при использовании кнопок и мышки
     global nrow, ncol
     x1 = ncol * (cell_size + 1) - cell_size + 1
@@ -507,7 +512,8 @@ def open_all_mines():
 
 # Экран поражения
 def show_lose_window(lose_from_min=True):
-    global lose
+    global lose, isInGame
+    isInGame = False
     pygame.mixer.music.stop()
     snd_loose.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
