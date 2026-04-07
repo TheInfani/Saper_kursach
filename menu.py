@@ -3,10 +3,13 @@ from tkinter import colorchooser
 import customtkinter as ctk
 import webbrowser
 import os
+import sys
 try:
     import pygame
 except ImportError:
+    os.system('pip install pygame')
     os.system('pip install pygame-ce')
+    os.execl(sys.executable, sys.executable, *sys.argv)
 try:
     from PIL import Image, ImageTk, ImageSequence
 except ImportError:
