@@ -11,7 +11,7 @@ from PIL import Image, ImageTk, ImageSequence
 
 class AnimatedGif(ctk.CTkLabel):
     def __init__(self, master, path):
-        self.img = Image.open("sounds\\gif.gif")
+        self.img = Image.open("sounds//gif.gif")
         self.frames = [ctk.CTkImage(light_image=f.copy(), size=(200, 200)) 
                        for f in ImageSequence.Iterator(self.img)]
         
@@ -37,7 +37,7 @@ def pashalka():
     random_x = random.randint(0, screen_w - win_w)
     random_y = random.randint(0, screen_h - win_h)
     pash_win.geometry(f"{win_w}x{win_h}+{random_x}+{random_y}")
-    anim = AnimatedGif(pash_win, "sounds\\gif.gif")
+    anim = AnimatedGif(pash_win, "sounds//gif.gif")
     anim.pack(expand=True)
 
 # Функция загрузки настроек из файла
@@ -60,7 +60,7 @@ def save_audio_settings():
 pygame.mixer.init()
 load_audio_settings()
 
-pygame.mixer.music.load("sounds\\best_music.mp3")
+pygame.mixer.music.load("sounds//best_music.mp3")
 pygame.mixer.music.play(loops=-1)
 pygame.mixer.music.set_volume(music_vol)
 snd_open.set_volume(sfx_vol)

@@ -6,7 +6,7 @@ import os
 try:
     import pygame
 except ImportError:
-    os.system('pip install pygame')
+    os.system('pip install pygame-ce')
 try:
     from PIL import Image, ImageTk, ImageSequence
 except ImportError:
@@ -35,9 +35,9 @@ def save_audio_settings():
 pygame.mixer.init()
 load_audio_settings()
 
-snd_open = pygame.mixer.Sound("sounds\\open.mp3")
-snd_loose = pygame.mixer.Sound("sounds\\loose.mp3")
-snd_win = pygame.mixer.Sound("sounds\\win.mp3")
+snd_open = pygame.mixer.Sound("sounds//open.mp3")
+snd_loose = pygame.mixer.Sound("sounds//loose.mp3")
+snd_win = pygame.mixer.Sound("sounds//win.mp3")
 snd_open.set_volume(sfx_vol)
 snd_win.set_volume(sfx_vol)
 snd_loose.set_volume(sfx_vol)
