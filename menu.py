@@ -3,6 +3,7 @@ from tkinter import colorchooser
 import webbrowser
 import os
 import sys
+import json
 try:
     import customtkinter as ctk
     import pygame
@@ -73,9 +74,9 @@ class ClassButton(ctk.CTkButton):
             command=command_with_sound, # Функция при нажатии
             width=50,                  # Ширина
             height=25,                 # Высота
-            fg_color="#515151",        # Цвет кнопки
-            hover_color="#373737",     # Цвет при наведении мыши
-            text_color="white",        # Цвет текста
+            fg_color=("#D9D8D8", "#515151"), # Цвет кнопки 
+            hover_color=("#BABABA", "#373737"), # Цвет кнопки при наведении
+            text_color=("black", "white"), # Цвет текста
             corner_radius=8,           # Закругленные углы
             font=ctk.CTkFont(size=12) # Шрифт
         )
@@ -225,18 +226,48 @@ def calculate_max_size():
             lbl_recommended.configure(text=f"Макс. рекомендований розмір поля: {max_safe}")
     except ValueError:
         pass
+    
+
+# Данные пресетов: [Название, Размер, Сложность, Размер клетки]
+presets_data = [
+    ["По умолчанию\n(10x10)", 10, 5, 50],
+    ["Минимальное поле\n(7x7)", 7, 5, 50],
+    ["Самый лёгкий\n(7x7)", 7, 1, 50],
+    ["Поле 15 клеток\n(15x15)", 15, 5, 50],
+    ["Сложность 10\n(10x10)", 10, 10, 50],
+    ["Максимум\n(25x25)", 25, 10, 30]
+]
+
+# Функции для сохранения и загрузки пресетов настроек в файл
+def save_presets():
+    global presets_data
+    with open("presets.json", "w", encoding='utf-8') as f:
+        json.dump(presets_data, f, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=False)
+        
+def load_presets():
+    global presets_data
+    try:
+        with open("presets.json", "r", encoding='utf-8') as f:
+            presets_data = json.load(f)
+    except Exception:
+        pass
+
+load_presets() # Загружаем пресеты при запуске
+
 
 # Основное меню
 def menu():
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root, timer_enter
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, size, difficultf, size_cell, root, timer_enter, presets_data
     root.title("Меню настроек игры")
-    root.geometry("600x630")
+    root.geometry("900x670")
     root.resizable(False, False)
 
     # Левый фрейм
-    frame_left = ctk.CTkFrame(root, width=300, height=630)
+    frame_left = ctk.CTkFrame(root, width=300, height=670, corner_radius=0)
     frame_left.pack(side="left")
     frame_left.pack_propagate(False)
+    label = ctk.CTkLabel(frame_left, text="Настройки игры", font=("Arial", 16, "bold"))
+    label.pack(pady=5)
     
     # Выясняем размеры поля
     label = ctk.CTkLabel(frame_left, text="Размер поля в клетках (от 7 до 25)")
@@ -297,11 +328,13 @@ def menu():
     btn4.pack(pady=5)
 
     # Правый фрейм 
-    frame_right = ctk.CTkFrame(root, width=300, height=630)
-    frame_right.pack(side="right")
+    frame_right = ctk.CTkFrame(root, width=300, height=670, corner_radius=0)
+    frame_right.pack(side="left")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
+    label =ctk.CTkLabel(frame_right, text="Предпросмотр поля", font=("Arial", 16, "bold"))
+    label.pack(pady=10)
     global canvas
-    canvas = tk.Canvas(frame_right, width=280, height=200, bg="#9A9A9A", highlightthickness=0, borderwidth=0)
+    canvas = tk.Canvas(frame_right, width=280, height=200, bg="#929292", highlightthickness=0, borderwidth=0)
     canvas.pack(pady=20)
 
     # Кнопка и надпись справа
@@ -315,6 +348,58 @@ def menu():
         btn_start = ClassButton(frame_right, text="Старт", command=start)
         btn_start.pack(side=tk.BOTTOM, pady=10)    
     
+    # Фрейм пресетов настроек
+    frame_presets = ctk.CTkFrame(root, width=300, height=670, fg_color="transparent", border_width=0, corner_radius=0)
+    frame_presets.pack(side="right")
+    frame_presets.pack_propagate(False)
+    
+    frame_list = ctk.CTkFrame(frame_presets, width=300, height=570)
+    frame_list.pack(side="top")
+    frame_list.pack_propagate(False)
+
+    label = ctk.CTkLabel(frame_list, text="Пресеты настроек", font=("Arial", 16, "bold"))
+    label.pack(pady=10)
+
+    # Создаем прокручиваемую область
+    scroll_frame = ctk.CTkScrollableFrame(frame_list, width=180, height=500, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent", scrollbar_button_color="#BABABA")
+    scroll_frame.pack(pady=5, padx=5, fill="both", expand=True)
+
+    # Функция для применения пресета
+    def apply_preset(p_size, p_diff, p_cell):
+        size.delete(0, tk.END)
+        size.insert(0, p_size)
+        difficultf.delete(0, tk.END)
+        difficultf.insert(0, p_diff)
+        size_cell.delete(0, tk.END)
+        size_cell.insert(0, p_cell)
+        tryy() # Обновляем предпросмотр
+
+    # Создаем кнопки пресетов в цикле
+    for i in presets_data:
+        preset_button = ctk.CTkButton(scroll_frame, text=i[0], command=lambda val=i: apply_preset(val[1], val[2], val[3]), height=60)
+        preset_button.pack(pady=5, fill="x")
+    
+    def add_preset():
+        p_size = size.get()
+        p_diff = difficultf.get()
+        p_cell = size_cell.get()
+        preset_name = f"{p_name.get()}\n({p_size}x{p_size})"
+        if not preset_name:
+            preset_name = f"Пресет {len(presets_data)+1}\n({p_size}x{p_size})"
+        presets_data.append([preset_name, p_size, p_diff, p_cell])
+        preset_button = ctk.CTkButton(scroll_frame, text=preset_name, command=lambda val=presets_data[-1]: apply_preset(val[1], val[2], val[3]), height=60)
+        preset_button.pack(pady=5, fill="x")
+        save_presets()
+
+    
+    # Кнопка добавления пресета
+    add_button = ctk.CTkButton(frame_presets, text="Добавить свой пресет", command=add_preset, width=220)
+    add_button.pack(side=tk.BOTTOM, pady=10)
+    
+    p_name = ctk.CTkEntry(frame_presets, width=220)
+    p_name.insert(0, "Название пресета")
+    p_name.pack(side=tk.BOTTOM, pady=10)
+
 root.withdraw() # Прячем "Родительское" меню
 
 def setting_window():
@@ -355,10 +440,8 @@ def setting_window():
     slider_sfx.set(sfx_vol) # Ставим ползунок на текущее значение
     slider_sfx.pack(pady=15)
     
-    label = ctk.CTkLabel(sett_w, text="Вы можете нажать \"M\" на клавиатуре\nво время игры, для смены настроек", font=("Arial", 14))
+    label = ctk.CTkLabel(sett_w, text="Вы можете нажать \"S\" на клавиатуре\nво время игры, для смены настроек", font=("Arial", 12), text_color="gray")
     label.pack(pady=10)
-    label = ctk.CTkLabel(sett_w, text="Права на музыку принадлежат YarikGamarnik\nСпасибо Nek0Anim3 за сведение", font=("Arial", 12), text_color="gray")
-    label.pack(pady=5)
 
     label = ctk.CTkLabel(sett_w, text="ОБЩЕЕ", font=("Arial", 16, "bold"))
     label.pack(pady=15)
@@ -372,7 +455,7 @@ def setting_window():
         
     chekboks_themes = ctk.CTkCheckBox(sett_w, text="Включить отображение кнопок", variable=buttons_var, onvalue=True, offvalue=False, command=on_check)
     chekboks_themes.pack(pady=6)
-    label = ctk.CTkLabel(sett_w, text="Изменения будут видны при следующем запуске игры", font=("Arial", 12), text_color="gray")
+    label = ctk.CTkLabel(sett_w, text="Изменится в следующей игре", font=("Arial", 12), text_color="gray")
     label.pack(pady=5)
     
     # Чекбокс для темы
@@ -389,6 +472,9 @@ def setting_window():
     chekboks_theme2.pack(pady=6)
     chekboks_theme3 = ctk.CTkRadioButton(sett_w, text="Тёмная тема", variable=theme_var, value="dark", command=on_theme_change)
     chekboks_theme3.pack(pady=6)
+
+    label = ctk.CTkLabel(sett_w, text="Права на музыку принадлежат YarikGamarnik\nСпасибо Nek0Anim3 за сведение", font=("Arial", 12), text_color="gray")
+    label.pack(pady=20)
 
 def single_st():
     global game_mode

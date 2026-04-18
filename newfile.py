@@ -75,9 +75,9 @@ min_count = 0 # Количество мин
 
 # Видимость кнопок управления
 if button_visible:
-    button_canvas_size = 130
+    button_canvas_size = 160
 else:
-    button_canvas_size = 60
+    button_canvas_size = 90
 
 # Перезапуск вместо закрытия окна при нажатии на крестик
 root.protocol("WM_DELETE_WINDOW", lambda: restart(root))
@@ -228,31 +228,34 @@ root.bind('<Right>', lambda event: mright())
 root.bind('<Up>', lambda event: mup())
 root.bind('<Down>', lambda event: mdown())
 root.bind('<F5>', lambda event: debug())
-root.bind('<m>', lambda event: setting_window())
+root.bind('<s>', lambda event: setting_window())
 root.bind('<p>', lambda event: pashalka())
 # Альтернанита для руского языка, так как ткинтер не определяет кирилицу
 def keypres(event):
     print(event.keycode)
-    if event.keycode == 77:
+    if event.keycode == 83: # Клавиша "S"
         setting_window()
 root.bind('<Key>', keypres)
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 top_info_frame = ctk.CTkFrame(root, fg_color="transparent")
-top_info_frame.pack(side=tk.TOP, pady=5)
+top_info_frame.pack(side=tk.TOP, pady=5, fill=tk.X)
+
+counters_frame = ctk.CTkFrame(top_info_frame, fg_color="transparent")
+counters_frame.pack(side=tk.TOP)
 
 # Текст с флажками
-mins_label = ctk.CTkLabel(top_info_frame, text="Откройте первую клетку", font=("Arial", 12))
+mins_label = ctk.CTkLabel(counters_frame, text="Откройте первую клетку", font=("Arial", 12))
 mins_label.pack(side=tk.LEFT, padx=15)
 
 if is_timer_on == 1:
     timer_text = f"Время: {timer}"
 else:
-    timer_text = "Время: Не установлено"
+    timer_text = "Время: не установлено"
 
 # Текст таймера
-timer_label = ctk.CTkLabel(top_info_frame, text=timer_text, font=("Arial", 12))
-timer_label.pack(side=tk.LEFT, padx=15)
+text_label = ctk.CTkLabel(counters_frame, text=timer_text, font=("Arial", 12))
+text_label.pack(side=tk.LEFT, padx=15)
 
 def kva(stor, kolv_str, kolv_stbl, colors):
     x1 = 0
@@ -269,6 +272,9 @@ def kva(stor, kolv_str, kolv_stbl, colors):
         y1 = y1 + stor + 1
         y2 = y2 + stor + 1
 
+# Текст инструкции
+timer_label = ctk.CTkLabel(top_info_frame, text="Вы можете нажать \"S\" на клавиатуре во время игры, для смены настроек", font=("Arial", 12), text_color="gray")
+timer_label.pack(side=tk.BOTTOM, padx=15)
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
 def know(x, y):
@@ -496,6 +502,7 @@ def show_win_window():
     win = ctk.CTkToplevel(root)
     win.title("Победа!")
     win.geometry("300x150")
+    win.attributes('-topmost', True)
     win.resizable(False, False)
     
     label = ctk.CTkLabel(win,text=f"Вы победили!\nСложность была: {difficult}",font=("Arial", 14, "bold"))
@@ -528,6 +535,7 @@ def show_lose_window(lose_from_min=True):
     lose = ctk.CTkToplevel(root)
     lose.title("Поражение!")
     lose.geometry("300x150")
+    lose.attributes('-topmost', True)
     lose.resizable(False, False)
     if lose_from_min:
         label = ctk.CTkLabel(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
