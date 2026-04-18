@@ -9,7 +9,6 @@ import customtkinter as ctk
 import pygame
 from PIL import Image, ImageSequence
 
-
 isInGame = True
 
 class AnimatedGif(ctk.CTkLabel):
@@ -154,6 +153,15 @@ for i in range(rows):
         else:
             row.append(0)
     matrix.append(row)
+
+if min_count < difficult:
+    while min_count < difficult:
+        i = random.randint(0, rows-1)
+        j = random.randint(0, cols-1)
+        if matrix[i][j] == 0:
+            matrix[i][j] = 1
+            min_count += 1
+
    
 # Создаём матрицу открытых клеток
 matrix_open = [] # Матрица открытых клеток
@@ -545,6 +553,26 @@ def restart(windows):
     os.execl(sys.executable, sys.executable, *sys.argv) # Перезапуск кода
 # *sys.argv применяет текущие аргументы командой строки, sys.executable исходный путь к интерпритатору
 
+# Установка всех флагов
+def open_all_flags():
+    global min_count
+    for i in range(cols):
+        for j in range(rows):
+            if matrix[j][i] == 1 and matrix_flag[j][i] == 0:
+                draw_text(i+1, j+1, "🚩")
+                matrix_flag[j][i] = 1
+                min_count -= 1
+                mins_label.configure(text=f"Флажков: {min_count}")
+                
+def open_all_unflagged():
+    global min_count, nrow, ncol
+    for i in range(cols):
+        for j in range(rows):
+            if matrix_flag[j][i] == 0:
+                nrow = j+1
+                ncol = i+1
+                scan()
+
 # ФУНКЦИЯ ОКНА ОТЛАДКИ  
 def debug():
     debug_win = ctk.CTkToplevel(root)
@@ -559,11 +587,17 @@ def debug():
             matrix_table += str(cell) + "   " 
         matrix_table += "\n"
         
-    label_name = ctk.CTkLabel(debug_win, text="Матрица мин", font=("Arial", 16, "bold"))
+    label_name = ctk.CTkLabel(debug_win, text="Стартовая матрица мин", font=("Arial", 16, "bold"))
     label_name.pack(side=tk.TOP, pady=25)
     label = ctk.CTkLabel(debug_win, text=matrix_table, font=("Arial", 12, "bold"))
     label.pack(expand=True, padx=25, pady=25)
-                                     
+    
+    button1 = ctk.CTkButton(debug_win, text="Открыть всё", width=10, command=open_all_unflagged)
+    button1.pack(side=tk.BOTTOM, pady=10)
+    button = ctk.CTkButton(debug_win, text="Установить флажки", width=10, command=open_all_flags)
+    button.pack(side=tk.BOTTOM, pady=10)
+    
+
 # КНОПКИ
 frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
 frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
