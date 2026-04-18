@@ -14,10 +14,11 @@ except ImportError:
 music_vol = 0.3
 sfx_vol = 0.5   
 button_visible = None # Видимость кнопок управления, по умолчанию включены
+theme_color = None # light,dark или system
 
 # Функция загрузки настроек из файла
 def load_audio_settings():
-    global music_vol, sfx_vol, button_visible
+    global music_vol, sfx_vol, button_visible, theme_color
     if os.path.exists("audio_settings.txt"): # Проверка наличия файла
         try:
             with open("audio_settings.txt", "r") as f:
@@ -25,13 +26,14 @@ def load_audio_settings():
                 music_vol = float(lines[0].strip())
                 sfx_vol = float(lines[1].strip())
                 button_visible = lines[2].strip() == "True" # Читаем как строку и преобразуем в булево значение
+                theme_color = lines[3].strip() # light,dark или system
         except Exception:
             pass
 
 # Функция сохранения настроек в файл
 def save_audio_settings():
     with open("audio_settings.txt", "w") as f:
-        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}") 
+        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}\n{theme_color}") 
  
 pygame.mixer.init()
 load_audio_settings()
@@ -52,7 +54,6 @@ cell_open_color = "#CDCDCD" # Цвет чистой клетки
 cell_outline_color = "#0006bd" # Цвет активной обводки
 flag_color = "#0c8628" # Цвет флага
 timer = 0 # таймер сеунд на прохождение игры
-theme_color = "system" # light,dark или system
 
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
@@ -94,7 +95,7 @@ class ErrorWindow(ctk.CTkToplevel):
 # Настройки для игры
 game_mode = 'single'
 
-settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible]
+settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible, theme_color]
 root = ctk.CTk() 
 
 # Отрисовка тестового отображения клеток
@@ -178,7 +179,7 @@ def choose_color4():
 
 def start():
 
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer, button_visible
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer, button_visible, theme_color
     # Проверка ввода на некорректные типы данных
     try:
         cell_size = int(size_cell.get())
@@ -206,7 +207,7 @@ def start():
         ErrorWindow(root, "Введите положительное значение времени,\nили 0 для отключения таймера", "260x120")
         return
     
-    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible]
+    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible, theme_color]
     print(settings)
     root.quit()
 
@@ -320,7 +321,7 @@ def setting_window():
     global sett_w, root
     sett_w = ctk.CTkToplevel(root)
     sett_w.title("Настройки")
-    sett_w.geometry("350x500")
+    sett_w.geometry("350x600")
     sett_w.resizable(False, False)
     sett_w.attributes('-topmost', True)
     
@@ -343,13 +344,13 @@ def setting_window():
     label.pack(pady=15)
     
     label = ctk.CTkLabel(sett_w, text="Громкость музыки:", font=("Arial", 14))
-    label.pack(pady=15)
+    label.pack(pady=10)
     slider_music = ctk.CTkSlider(sett_w, from_=0.0, to=1.0, number_of_steps=20, command=update_music_vol) # from_ минимальное значение, to - максимальное значение, command - функция при изменении ползунка!
     slider_music.set(music_vol) # Ставим ползунок на текущее значение
     slider_music.pack(pady=5)
 
     label = ctk.CTkLabel(sett_w, text="Громкость эффектов:", font=("Arial", 14))
-    label.pack(pady=15)
+    label.pack(pady=10)
     slider_sfx = ctk.CTkSlider(sett_w, from_=0.0, to=1.0,number_of_steps=20, command=update_sfx_vol) # number_of_steps можно задать сколько шагов есть у слайдера
     slider_sfx.set(sfx_vol) # Ставим ползунок на текущее значение
     slider_sfx.pack(pady=15)
@@ -357,21 +358,37 @@ def setting_window():
     label = ctk.CTkLabel(sett_w, text="Вы можете нажать \"M\" на клавиатуре\nво время игры, для смены настроек", font=("Arial", 14))
     label.pack(pady=10)
     label = ctk.CTkLabel(sett_w, text="Права на музыку принадлежат YarikGamarnik\nСпасибо Nek0Anim3 за сведение", font=("Arial", 12), text_color="gray")
-    label.pack(pady=10)
-
-    buttons_var = ctk.BooleanVar(value=button_visible) # Надо ибо чекбокс не работает с дефф булианами
-    
-    def on_check():
-        global button_visible
-        button_visible = buttons_var.get()
-        save_audio_settings()
+    label.pack(pady=5)
 
     label = ctk.CTkLabel(sett_w, text="ОБЩЕЕ", font=("Arial", 16, "bold"))
     label.pack(pady=15)
+    
+    # Чекбокс для отображения кнопок управления
+    buttons_var = ctk.BooleanVar(value=button_visible) # Надо ибо чекбокс не работает с дефф булианами
+    def on_check():
+        global button_visible
+        button_visible = buttons_var.get()
+        save_audio_settings() 
+        
     chekboks_themes = ctk.CTkCheckBox(sett_w, text="Включить отображение кнопок", variable=buttons_var, onvalue=True, offvalue=False, command=on_check)
     chekboks_themes.pack(pady=6)
     label = ctk.CTkLabel(sett_w, text="Изменения будут видны при следующем запуске игры", font=("Arial", 12), text_color="gray")
+    label.pack(pady=5)
     
+    # Чекбокс для темы
+    theme_var = ctk.StringVar(value=theme_color)
+    def on_theme_change():
+        global theme_color
+        theme_color = theme_var.get()
+        save_audio_settings()
+        ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
+
+    chekboks_theme = ctk.CTkRadioButton(sett_w, text="Системная тема", variable=theme_var, value="system", command=on_theme_change)
+    chekboks_theme.pack(pady=6)
+    chekboks_theme2 = ctk.CTkRadioButton(sett_w, text="Светлая тема", variable=theme_var, value="light", command=on_theme_change)
+    chekboks_theme2.pack(pady=6)
+    chekboks_theme3 = ctk.CTkRadioButton(sett_w, text="Тёмная тема", variable=theme_var, value="dark", command=on_theme_change)
+    chekboks_theme3.pack(pady=6)
 
 def single_st():
     global game_mode

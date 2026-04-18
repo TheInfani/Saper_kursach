@@ -69,10 +69,10 @@ flag_color = settings[7] # "green" # Цвет флага
 timer = settings[8] # 0 # Время на игру, 0 для отключения таймера
 print(timer)
 button_visible = settings[9] # True # Видимость кнопок управления
+theme_color = settings[10] # light,dark или system 
 
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
-theme_color = "system" # light,dark или system
 
 # Видимость кнопок управления
 if button_visible:
@@ -86,7 +86,7 @@ root.protocol("WM_DELETE_WINDOW", lambda: restart(root))
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
-ctk.deactivate_automatic_dpi_awareness()
+ctk.deactivate_automatic_dpi_awareness() # Отключение автоматической адаптации к DPI, чтобы интерфейс не масштабировался на разных экранах
 
 try:
     if int(timer) > 0:
