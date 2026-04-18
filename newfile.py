@@ -43,18 +43,6 @@ def pashalka():
     anim = AnimatedGif(pash_win, "sounds//gif.gif")
     anim.pack(expand=True)
 
-# Функция загрузки настроек из файла
-def load_audio_settings():
-    global music_vol, sfx_vol
-    if os.path.exists("audio_settings.txt"): # Проверка наличия файла
-        try:
-            with open("audio_settings.txt", "r") as f:
-                lines = f.readlines()
-                music_vol = float(lines[0].strip())
-                sfx_vol = float(lines[1].strip())
-        except Exception:
-            pass
-
 # Функция сохранения настроек в файл
 def save_audio_settings():
     with open("audio_settings.txt", "w") as f:
@@ -80,9 +68,17 @@ cell_outline_color = settings[6] # "red" # Цвет активной обвод�
 flag_color = settings[7] # "green" # Цвет флага
 timer = settings[8] # 0 # Время на игру, 0 для отключения таймера
 print(timer)
+button_visible = settings[9] # True # Видимость кнопок управления
+
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
 theme_color = "system" # light,dark или system
+
+# Видимость кнопок управления
+if button_visible:
+    button_canvas_size = 130
+else:
+    button_canvas_size = 60
 
 # Перезапуск вместо закрытия окна при нажатии на крестик
 root.protocol("WM_DELETE_WINDOW", lambda: restart(root))
@@ -174,12 +170,15 @@ for i in range(rows):
     for j in range(cols):
         row.append(0)
     matrix_flag.append(row)
-  
+
+
+
+
 # Создаем основное окно
 root.deiconify()
 root.title("Сапер")
 if cols*cell_size >= 350:
-    root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + 130}")
+    root.geometry(f"{(cols * cell_size) + cols+4}x{(rows * cell_size) + rows + button_canvas_size}")
 else:
     root.geometry("350x480")
 root.resizable(False, False)

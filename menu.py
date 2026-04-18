@@ -13,23 +13,25 @@ except ImportError:
     
 music_vol = 0.3
 sfx_vol = 0.5   
-  
+button_visible = None # Видимость кнопок управления, по умолчанию включены
+
 # Функция загрузки настроек из файла
 def load_audio_settings():
-    global music_vol, sfx_vol
+    global music_vol, sfx_vol, button_visible
     if os.path.exists("audio_settings.txt"): # Проверка наличия файла
         try:
             with open("audio_settings.txt", "r") as f:
                 lines = f.readlines()
                 music_vol = float(lines[0].strip())
                 sfx_vol = float(lines[1].strip())
+                button_visible = lines[2].strip() == "True" # Читаем как строку и преобразуем в булево значение
         except Exception:
             pass
 
 # Функция сохранения настроек в файл
 def save_audio_settings():
     with open("audio_settings.txt", "w") as f:
-        f.write(f"{music_vol}\n{sfx_vol}") 
+        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}") 
  
 pygame.mixer.init()
 load_audio_settings()
@@ -92,7 +94,7 @@ class ErrorWindow(ctk.CTkToplevel):
 # Настройки для игры
 game_mode = 'single'
 
-settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer]
+settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible]
 root = ctk.CTk() 
 
 # Отрисовка тестового отображения клеток
@@ -110,8 +112,8 @@ def tryy():
         return
 
     # Проверка диапазонов
-    if rows < 5 or rows > 25:
-        ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
+    if rows < 7 or rows > 25:
+        ErrorWindow(root, "Введите размер поля в диапазоне от 7 до 25", "450x100")
         return
         
     elif difficult < 1 or difficult > 10:
@@ -176,7 +178,7 @@ def choose_color4():
 
 def start():
 
-    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer
+    global rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, settings, timer, button_visible
     # Проверка ввода на некорректные типы данных
     try:
         cell_size = int(size_cell.get())
@@ -188,8 +190,8 @@ def start():
         return
     
     # Проверка диапазонов
-    if rows < 5 or rows > 25:
-        ErrorWindow(root, "Введите размер поля в диапазоне от 5 до 25", "450x100")
+    if rows < 7 or rows > 25:
+        ErrorWindow(root, "Введите размер поля в диапазоне от 7 до 25", "450x100")
         return 
         
     elif difficult < 1 or difficult > 10:
@@ -204,7 +206,7 @@ def start():
         ErrorWindow(root, "Введите положительное значение времени,\nили 0 для отключения таймера", "260x120")
         return
     
-    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer]
+    settings = [rows, cols, difficult, cell_size, cell_def_color, cell_open_color, cell_outline_color, flag_color, timer, button_visible]
     print(settings)
     root.quit()
 
@@ -236,7 +238,7 @@ def menu():
     frame_left.pack_propagate(False)
     
     # Выясняем размеры поля
-    label = ctk.CTkLabel(frame_left, text="Размер поля в клетках (от 5 до 25)")
+    label = ctk.CTkLabel(frame_left, text="Размер поля в клетках (от 7 до 25)")
     label.pack(pady=5)
     size = ctk.CTkEntry(frame_left)
     size.insert(0, 10)
@@ -317,8 +319,8 @@ root.withdraw() # Прячем "Родительское" меню
 def setting_window():
     global sett_w, root
     sett_w = ctk.CTkToplevel(root)
-    sett_w.title("Настройки звука")
-    sett_w.geometry("350x250")
+    sett_w.title("Настройки")
+    sett_w.geometry("350x500")
     sett_w.resizable(False, False)
     sett_w.attributes('-topmost', True)
     
@@ -337,6 +339,9 @@ def setting_window():
         snd_loose.set_volume(sfx_vol)
         save_audio_settings()
     
+    label = ctk.CTkLabel(sett_w, text="ЗВУКИ", font=("Arial", 16, "bold"))
+    label.pack(pady=15)
+    
     label = ctk.CTkLabel(sett_w, text="Громкость музыки:", font=("Arial", 14))
     label.pack(pady=15)
     slider_music = ctk.CTkSlider(sett_w, from_=0.0, to=1.0, number_of_steps=20, command=update_music_vol) # from_ минимальное значение, to - максимальное значение, command - функция при изменении ползунка!
@@ -351,8 +356,22 @@ def setting_window():
     
     label = ctk.CTkLabel(sett_w, text="Вы можете нажать \"M\" на клавиатуре\nво время игры, для смены настроек", font=("Arial", 14))
     label.pack(pady=10)
+    label = ctk.CTkLabel(sett_w, text="Права на музыку принадлежат YarikGamarnik\nСпасибо Nek0Anim3 за сведение", font=("Arial", 12), text_color="gray")
+    label.pack(pady=10)
 
-    ctk.CTkButton(sett_w, text="Закрыть", command=sett_w.destroy, width=120).pack(pady=(20, 10))
+    buttons_var = ctk.BooleanVar(value=button_visible) # Надо ибо чекбокс не работает с дефф булианами
+    
+    def on_check():
+        global button_visible
+        button_visible = buttons_var.get()
+        save_audio_settings()
+
+    label = ctk.CTkLabel(sett_w, text="ОБЩЕЕ", font=("Arial", 16, "bold"))
+    label.pack(pady=15)
+    chekboks_themes = ctk.CTkCheckBox(sett_w, text="Включить отображение кнопок", variable=buttons_var, onvalue=True, offvalue=False, command=on_check)
+    chekboks_themes.pack(pady=6)
+    label = ctk.CTkLabel(sett_w, text="Изменения будут видны при следующем запуске игры", font=("Arial", 12), text_color="gray")
+    
 
 def single_st():
     global game_mode
@@ -388,4 +407,4 @@ def win_select_mode():
 
 win_select_mode()
 
-root.mainloop()    
+root.mainloop()
