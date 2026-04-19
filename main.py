@@ -91,11 +91,16 @@ ctk.deactivate_automatic_dpi_awareness() # Отключение автомати
 try:
     if int(timer) > 0:
         is_timer_on = 1
-        start_timer = timer
     else:
         is_timer_on = 0
 except ValueError:
     is_timer_on = 0
+
+def update_start_timer():
+    global start_timer, isInGame
+    if isInGame:
+        start_timer += 1
+        root.start_timer_id = root.after(1000, update_start_timer)
 
 def update_timer():
     global timer, first_click
@@ -257,8 +262,8 @@ else:
     timer_text = "Время: не установлено"
 
 # Текст таймера
-text_label = ctk.CTkLabel(counters_frame, text=timer_text, font=("Arial", 12))
-text_label.pack(side=tk.LEFT, padx=15)
+timer_label = ctk.CTkLabel(counters_frame, text=timer_text, font=("Arial", 12))
+timer_label.pack(side=tk.LEFT, padx=15)
 
 def kva(stor, kolv_str, kolv_stbl, colors):
     x1 = 0
@@ -276,8 +281,8 @@ def kva(stor, kolv_str, kolv_stbl, colors):
         y2 = y2 + stor + 1
 
 # Текст инструкции
-timer_label = ctk.CTkLabel(top_info_frame, text="Вы можете нажать \"S\" на клавиатуре во время игры, для смены настроек", font=("Arial", 12), text_color="gray")
-timer_label.pack(side=tk.BOTTOM, padx=15)
+instr_label = ctk.CTkLabel(top_info_frame, text="Вы можете нажать \"S\" на клавиатуре во время игры, для смены настроек", font=("Arial", 12), text_color="gray")
+instr_label.pack(side=tk.BOTTOM, padx=15)
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
 def know(x, y):
@@ -473,6 +478,7 @@ def scan():
         first_click = 1
         if is_timer_on == 1:
             update_timer()
+        update_start_timer()
     
     snd_open.play()
     open_cell(ncol, nrow)
@@ -502,14 +508,18 @@ def show_win_window():
     snd_win.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
         root.after_cancel(root.timer_id)
+    if hasattr(root, 'start_timer_id'):
+        root.after_cancel(root.start_timer_id)
     win = ctk.CTkToplevel(root)
     win.title("Победа!")
-    win.geometry("300x150")
+    win.geometry("300x180")
     win.attributes('-topmost', True)
     win.resizable(False, False)
     
-    label = ctk.CTkLabel(win,text=f"Вы победили!\nСложность была: {difficult}",font=("Arial", 14, "bold"))
+    game_points = round(start_min_count * difficult * ((rows + cols)/2) / (start_timer / (start_min_count * difficult)))
+    label = ctk.CTkLabel(win,text=f"Вы победили!\nСчёт: {game_points}",font=("Arial", 14, "bold"))
     label.pack(expand=True)
+    add_record(game_points)
     win_btn = ctk.CTkButton(win, text="Новая игра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
     
@@ -535,6 +545,8 @@ def show_lose_window(lose_from_min=True):
     snd_loose.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
         root.after_cancel(root.timer_id)
+    if hasattr(root, 'start_timer_id'):
+        root.after_cancel(root.start_timer_id)
     lose = ctk.CTkToplevel(root)
     lose.title("Поражение!")
     lose.geometry("300x150")
@@ -584,16 +596,30 @@ def open_all_unflagged():
                 ncol = i+1
                 scan()
 
-def add_record():
+# Функции для загрузки рекордов
+def load_records():
+    global records_data
+    try:
+        with open("records.json", "r", encoding='utf-8') as f:
+            records_data = json.load(f)
+    except Exception:
+        pass
+    
+# Функции для сохранения рекордов
+def save_records():
+    global presets_data
+    with open("records.json", "w", encoding='utf-8') as f:
+        json.dump(records_data, f, ensure_ascii=False, sort_keys=False)
+
+def add_record(points):
+    load_records()
     global start_timer, min_count
-    r_count = 0
     r_diff = difficult
     r_size = rows
     r_time = start_timer - timer
     r_mine = start_min_count
-    preset_name = f"Очки: {r_count}  Время (секунды): {r_time}\nСложность: {r_diff}  Размер поля: {r_size}  Мин: {r_mine}"
-    preset_button = ctk.CTkButton(scroll_frame, text=preset_name, height=60)
-    preset_button.pack(pady=5, fill="x")
+    record_name = f"Очки: {points}  Время (секунды): {r_time}\nСложность: {r_diff}  Размер поля: {r_size}  Мин: {r_mine}"
+    records_data.append([points, r_time, r_diff, r_size, r_mine])
     save_records()
 
 # ФУНКЦИЯ ОКНА ОТЛАДКИ  

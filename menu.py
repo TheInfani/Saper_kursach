@@ -72,7 +72,7 @@ class ClassButton(ctk.CTkButton):
             master=master,             # root
             text=text,                 # Текст на кнопке
             command=command_with_sound, # Функция при нажатии
-            width=50,                  # Ширина
+            width=110,                  # Ширина
             height=25,                 # Высота
             fg_color=("#D9D8D8", "#515151"), # Цвет кнопки 
             hover_color=("#BABABA", "#373737"), # Цвет кнопки при наведении
@@ -242,7 +242,7 @@ presets_data = [
 def save_presets():
     global presets_data
     with open("presets.json", "w", encoding='utf-8') as f:
-        json.dump(presets_data, f, ensure_ascii=False, indent=4, separators=(',', ': '), sort_keys=False)
+        json.dump(presets_data, f, ensure_ascii=False, separators=(',', ': '), indent=4, sort_keys=False)
         
 def load_presets():
     global presets_data
@@ -254,6 +254,24 @@ def load_presets():
 
 load_presets() # Загружаем пресеты при запуске
 
+# Функция для применения пресета
+def apply_preset(p_size, p_diff, p_cell):
+    size.delete(0, tk.END)
+    size.insert(0, p_size)
+    difficultf.delete(0, tk.END)
+    difficultf.insert(0, p_diff)
+    size_cell.delete(0, tk.END)
+    size_cell.insert(0, p_cell)
+    tryy() # Обновляем предпросмотр
+            
+def refresh_scroll_pres():
+    global scroll_pres_frame
+    for widget in scroll_pres_frame.winfo_children():
+        widget.destroy()
+
+    for i in presets_data:
+        preset_button = ctk.CTkButton(scroll_pres_frame, text=i[0], command=lambda val=i: apply_preset(val[1], val[2], val[3]), height=60, width=250)
+        preset_button.pack(pady=5) #fill="x"
 
 # Основное меню
 def menu():
@@ -263,7 +281,7 @@ def menu():
     root.resizable(False, False)
 
     # Левый фрейм
-    frame_left = ctk.CTkFrame(root, width=300, height=670, corner_radius=0)
+    frame_left = ctk.CTkFrame(root, width=300, height=670, corner_radius=0, fg_color="transparent")
     frame_left.pack(side="left")
     frame_left.pack_propagate(False)
     label = ctk.CTkLabel(frame_left, text="Настройки игры", font=("Arial", 16, "bold"))
@@ -328,7 +346,7 @@ def menu():
     btn4.pack(pady=5)
 
     # Правый фрейм 
-    frame_right = ctk.CTkFrame(root, width=300, height=670, corner_radius=0)
+    frame_right = ctk.CTkFrame(root, width=300, height=670, corner_radius=0, fg_color="transparent")
     frame_right.pack(side="right")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
     label =ctk.CTkLabel(frame_right, text="Предпросмотр поля", font=("Arial", 16, "bold"))
@@ -346,14 +364,14 @@ def menu():
     btn_try.pack(side=tk.BOTTOM, pady=10) # ВНИМАНИЕ ЯРИК!!! PADY ЭТО ОТСТУП ПО Y, PADX ПО X. ВРОДЕ ЛОГИЧНО НО ЧТО-ТО НЕ ПОНЯТНО.
     if game_mode == 'single':
         btn_start = ClassButton(frame_right, text="Старт", command=start)
-        btn_start.pack(side=tk.BOTTOM, pady=10)    
+        btn_start.pack(side=tk.BOTTOM, pady=10) 
     
     # Фрейм пресетов настроек
     frame_presets = ctk.CTkFrame(root, width=300, height=670, fg_color="transparent", border_width=0, corner_radius=0)
     frame_presets.pack(side="right")
     frame_presets.pack_propagate(False)
     
-    frame_list = ctk.CTkFrame(frame_presets, width=300, height=570,fg_color="transparent", corner_radius=0)
+    frame_list = ctk.CTkFrame(frame_presets, width=300, height=550,fg_color="transparent", corner_radius=0)
     frame_list.pack(side="top")
     frame_list.pack_propagate(False)
 
@@ -361,45 +379,85 @@ def menu():
     label.pack(pady=10)
 
     # Создаем прокручиваемую область
-    scroll_frame = ctk.CTkScrollableFrame(frame_list, width=180, height=500, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent", scrollbar_button_color="#BABABA")
-    scroll_frame.pack(pady=5, padx=5, fill="both", expand=True)
-    scroll_frame._scrollbar.configure(width=0)
-
-    # Функция для применения пресета
-    def apply_preset(p_size, p_diff, p_cell):
-        size.delete(0, tk.END)
-        size.insert(0, p_size)
-        difficultf.delete(0, tk.END)
-        difficultf.insert(0, p_diff)
-        size_cell.delete(0, tk.END)
-        size_cell.insert(0, p_cell)
-        tryy() # Обновляем предпросмотр
+    global scroll_pres_frame
+    scroll_pres_frame = ctk.CTkScrollableFrame(frame_list, width=180, height=550, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent", scrollbar_button_color="#BABABA")
+    scroll_pres_frame.pack(pady=5, padx=5, fill="both", expand=True)
+    scroll_pres_frame._scrollbar.configure(width=0)
 
     # Создаем кнопки пресетов в цикле
-    for i in presets_data:
-        preset_button = ctk.CTkButton(scroll_frame, text=i[0], command=lambda val=i: apply_preset(val[1], val[2], val[3]), height=60)
-        preset_button.pack(pady=5, fill="x")
+    refresh_scroll_pres()
     
     def add_preset():
         p_size = size.get()
         p_diff = difficultf.get()
         p_cell = size_cell.get()
-        preset_name = f"{p_name.get()}\n({p_size}x{p_size})"
-        if not preset_name:
+        if p_name.get() == "":
             preset_name = f"Пресет {len(presets_data)+1}\n({p_size}x{p_size})"
+        else:
+            preset_name = f"{p_name.get()}\n({p_size}x{p_size})"   
         presets_data.append([preset_name, p_size, p_diff, p_cell])
-        preset_button = ctk.CTkButton(scroll_frame, text=preset_name, command=lambda val=presets_data[-1]: apply_preset(val[1], val[2], val[3]), height=60)
-        preset_button.pack(pady=5, fill="x")
+        preset_button = ctk.CTkButton(scroll_pres_frame, text=preset_name, command=lambda val=presets_data[-1]: apply_preset(val[1], val[2], val[3]), height=60, width=250)
+        preset_button.pack(pady=5)
         save_presets()
 
+    # Фрейм удаления пресетов
+    frame_del_btn = ctk.CTkFrame(frame_presets, width=300, height=30, fg_color="transparent", border_width=0, corner_radius=0)
+    frame_del_btn.pack(side=tk.BOTTOM, pady=5, padx=25)
+    frame_del_btn.pack_propagate(False)
+    
+    del_btn = ctk.CTkButton(frame_del_btn, text="Меню удаления пресетов", command=window_presets_del, width=250, fg_color="#A30000", hover_color="#7A0000")
+    del_btn.pack()
     
     # Кнопка добавления пресета
-    add_button = ctk.CTkButton(frame_presets, text="Добавить свой пресет", command=add_preset, width=220)
-    add_button.pack(side=tk.BOTTOM, pady=10)
+    add_button = ctk.CTkButton(frame_presets, text="Добавить свой пресет", command=add_preset, width=250)
+    add_button.pack(side=tk.BOTTOM, pady=5)
     
-    p_name = ctk.CTkEntry(frame_presets, width=220)
+    p_name = ctk.CTkEntry(frame_presets, width=250)
     p_name.insert(0, "Название пресета")
-    p_name.pack(side=tk.BOTTOM, pady=10)
+    p_name.pack(side=tk.BOTTOM, pady=5) 
+    
+def refresh_scroll():
+    global scroll_del_frame
+    for widget in scroll_del_frame.winfo_children():
+        widget.destroy()
+    
+    for i in presets_data:
+        btn = ctk.CTkButton(scroll_del_frame, text=i[0], height=60, width=250, fg_color="#A30000", hover_color="#7A0000")
+        btn.configure(command=lambda p=i: delete_and_refresh(p))
+        btn.pack(pady=5)  
+        
+# Функция удаления пресетов
+def delete_and_refresh(preset_to_delete):
+    if preset_to_delete in presets_data:
+        presets_data.remove(preset_to_delete)
+    save_presets()
+    refresh_scroll()
+    refresh_scroll_pres()
+    
+# Фрейм удаления пресетов
+def window_presets_del():
+    global w_delpres, root, records_data
+    w_delpres = ctk.CTkToplevel(root)
+    w_delpres.title("Настройки")
+    w_delpres.geometry("300x650")
+    w_delpres.resizable(False, False)
+    w_delpres.attributes('-topmost', True)
+    
+    frame_pres_del = ctk.CTkFrame(w_delpres, width=300, height=600, fg_color="transparent", border_width=0, corner_radius=0)
+    frame_pres_del.pack(side="right")
+    frame_pres_del.pack_propagate(False)
+
+    label = ctk.CTkLabel(frame_pres_del, text="Нажмите на пресет\nдля удаления", font=("Arial", 16, "bold"))
+    label.pack(pady=5)
+
+    # Создаем прокручиваемую область
+    global scroll_del_frame
+    scroll_del_frame = ctk.CTkScrollableFrame(frame_pres_del, width=300, height=600, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent")
+    scroll_del_frame.pack(pady=5, padx=5, fill="both", expand=True)
+    scroll_del_frame._scrollbar.configure(width=0)
+
+    # Создаем кнопки рекордов в цикле
+    refresh_scroll()
 
 root.withdraw() # Прячем "Родительское" меню
 
@@ -487,29 +545,30 @@ def single_st():
 def open_browser():
     webbrowser.open_new_tab("https://github.com/TheInfani/Saper_kursach")
 
-
-
-
-
-
-
-
-
-
 # таблица рекордов (очки, время прохождения, сложность, размер, количество мин)      очки = (количество мин * слоность * размер поля) / (время прохождения / (количество мин * сложность))
 records_data = [
     [4348, 23, 5, 10, 20]
 ]
 
+# Функции для загрузки рекордов
+def load_records():
+    global records_data
+    try:
+        with open("records.json", "r", encoding='utf-8') as f:
+            records_data = json.load(f)
+    except Exception:
+        pass
+
 def records_window():
-    global w_records, root
+    load_records()
+    global w_records, root, records_data
     w_records = ctk.CTkToplevel(root)
     w_records.title("Настройки")
     w_records.geometry("300x670")
     w_records.resizable(False, False)
     w_records.attributes('-topmost', True)
     
-    # Фрейм пресетов настроек
+    # Фрейм рекордов
     frame_records = ctk.CTkFrame(w_records, width=300, height=670, fg_color="transparent", border_width=0, corner_radius=0)
     frame_records.pack(side="right")
     frame_records.pack_propagate(False)
@@ -526,28 +585,12 @@ def records_window():
     scroll_frame.pack(pady=5, padx=5, fill="both", expand=True)
     scroll_frame._scrollbar.configure(width=0)
 
-    # # Функция для применения пресета
-    # def apply_preset(p_size, p_diff, p_cell):
-    #     size.delete(0, tk.END)
-    #     size.insert(0, p_size)
-    #     difficultf.delete(0, tk.END)
-    #     difficultf.insert(0, p_diff)
-    #     size_cell.delete(0, tk.END)
-    #     size_cell.insert(0, p_cell)
-    #     tryy() # Обновляем предпросмотр
 
-    # Создаем кнопки пресетов в цикле
+    # Создаем кнопки рекордов в цикле
     for i in records_data:
         preset_button = ctk.CTkButton(scroll_frame, text=f"Очки: {i[0]}  Время (секунды): {i[1]}\nСложность: {i[2]}  Размер поля: {i[3]}  Мин: {i[4]}", height=60)
         preset_button.pack(pady=5, fill="x")
-
-
-
-
-
-
-
-
+        
 def destroy_st():
     try:
         sett_w.destroy()
