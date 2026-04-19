@@ -72,6 +72,7 @@ theme_color = settings[10] # light,dark или system
 
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
+start_timer = 0 # Изначальное значение таймера
 
 # Видимость кнопок управления
 if button_visible:
@@ -90,6 +91,7 @@ ctk.deactivate_automatic_dpi_awareness() # Отключение автомати
 try:
     if int(timer) > 0:
         is_timer_on = 1
+        start_timer = timer
     else:
         is_timer_on = 0
 except ValueError:
@@ -162,6 +164,7 @@ if min_count < difficult:
             matrix[i][j] = 1
             min_count += 1
 
+start_min_count = min_count
    
 # Создаём матрицу открытых клеток
 matrix_open = [] # Матрица открытых клеток
@@ -580,6 +583,18 @@ def open_all_unflagged():
                 nrow = j+1
                 ncol = i+1
                 scan()
+
+def add_record():
+    global start_timer, min_count
+    r_count = 0
+    r_diff = difficult
+    r_size = rows
+    r_time = start_timer - timer
+    r_mine = start_min_count
+    preset_name = f"Очки: {r_count}  Время (секунды): {r_time}\nСложность: {r_diff}  Размер поля: {r_size}  Мин: {r_mine}"
+    preset_button = ctk.CTkButton(scroll_frame, text=preset_name, height=60)
+    preset_button.pack(pady=5, fill="x")
+    save_records()
 
 # ФУНКЦИЯ ОКНА ОТЛАДКИ  
 def debug():

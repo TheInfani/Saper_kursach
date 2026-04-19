@@ -329,7 +329,7 @@ def menu():
 
     # Правый фрейм 
     frame_right = ctk.CTkFrame(root, width=300, height=670, corner_radius=0)
-    frame_right.pack(side="left")
+    frame_right.pack(side="right")
     frame_right.pack_propagate(False) # Судя с инета, это фиксирует размеры фрейма, бо без него чёт всё с`езжает
     label =ctk.CTkLabel(frame_right, text="Предпросмотр поля", font=("Arial", 16, "bold"))
     label.pack(pady=10)
@@ -353,7 +353,7 @@ def menu():
     frame_presets.pack(side="right")
     frame_presets.pack_propagate(False)
     
-    frame_list = ctk.CTkFrame(frame_presets, width=300, height=570)
+    frame_list = ctk.CTkFrame(frame_presets, width=300, height=570,fg_color="transparent", corner_radius=0)
     frame_list.pack(side="top")
     frame_list.pack_propagate(False)
 
@@ -363,6 +363,7 @@ def menu():
     # Создаем прокручиваемую область
     scroll_frame = ctk.CTkScrollableFrame(frame_list, width=180, height=500, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent", scrollbar_button_color="#BABABA")
     scroll_frame.pack(pady=5, padx=5, fill="both", expand=True)
+    scroll_frame._scrollbar.configure(width=0)
 
     # Функция для применения пресета
     def apply_preset(p_size, p_diff, p_cell):
@@ -486,9 +487,76 @@ def single_st():
 def open_browser():
     webbrowser.open_new_tab("https://github.com/TheInfani/Saper_kursach")
 
+
+
+
+
+
+
+
+
+
+# таблица рекордов (очки, время прохождения, сложность, размер, количество мин)      очки = (количество мин * слоность * размер поля) / (время прохождения / (количество мин * сложность))
+records_data = [
+    [4348, 23, 5, 10, 20]
+]
+
+def records_window():
+    global w_records, root
+    w_records = ctk.CTkToplevel(root)
+    w_records.title("Настройки")
+    w_records.geometry("300x670")
+    w_records.resizable(False, False)
+    w_records.attributes('-topmost', True)
+    
+    # Фрейм пресетов настроек
+    frame_records = ctk.CTkFrame(w_records, width=300, height=670, fg_color="transparent", border_width=0, corner_radius=0)
+    frame_records.pack(side="right")
+    frame_records.pack_propagate(False)
+        
+    frame_record_list = ctk.CTkFrame(frame_records, width=300, height=570, fg_color="transparent")
+    frame_record_list.pack(side="top")
+    frame_record_list.pack_propagate(False)
+
+    label = ctk.CTkLabel(frame_record_list, text="Рекорды", font=("Arial", 16, "bold"))
+    label.pack(pady=10)
+
+    # Создаем прокручиваемую область
+    scroll_frame = ctk.CTkScrollableFrame(frame_record_list, width=180, height=500, border_width=0, corner_radius=0, fg_color="transparent", scrollbar_fg_color="transparent")
+    scroll_frame.pack(pady=5, padx=5, fill="both", expand=True)
+    scroll_frame._scrollbar.configure(width=0)
+
+    # # Функция для применения пресета
+    # def apply_preset(p_size, p_diff, p_cell):
+    #     size.delete(0, tk.END)
+    #     size.insert(0, p_size)
+    #     difficultf.delete(0, tk.END)
+    #     difficultf.insert(0, p_diff)
+    #     size_cell.delete(0, tk.END)
+    #     size_cell.insert(0, p_cell)
+    #     tryy() # Обновляем предпросмотр
+
+    # Создаем кнопки пресетов в цикле
+    for i in records_data:
+        preset_button = ctk.CTkButton(scroll_frame, text=f"Очки: {i[0]}  Время (секунды): {i[1]}\nСложность: {i[2]}  Размер поля: {i[3]}  Мин: {i[4]}", height=60)
+        preset_button.pack(pady=5, fill="x")
+
+
+
+
+
+
+
+
 def destroy_st():
     try:
         sett_w.destroy()
+    except Exception:
+        pass
+
+def destroy_rec():
+    try:
+        w_records.destroy()
     except Exception:
         pass
 
@@ -496,16 +564,18 @@ def win_select_mode():
     global select, root, sett_w
     select = ctk.CTkToplevel(root)
     select.title("Выбор режима")
-    select.geometry("350x200")
+    select.geometry("350x250")
     select.resizable(False, False)
     label =ctk.CTkLabel(select, text="Сапёр Офлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
-    single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(),destroy_st(), single_st()])
+    single_btn = ClassButton(select, text="Одиночная игра", command=lambda: [select.destroy(),destroy_st(),single_st(),destroy_rec()])
     single_btn.pack(pady=10)
     github_btn = ClassButton(select, text="GitHub проекта", command=open_browser)
     github_btn.pack(pady=10)
     settings_btn = ClassButton(select, text="Настройки", command=setting_window)
     settings_btn.pack(pady=10)
+    rec_btn = ClassButton(select, text="Рекорды", command=records_window)
+    rec_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
 win_select_mode()
