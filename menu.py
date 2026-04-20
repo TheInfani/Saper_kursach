@@ -546,6 +546,8 @@ def open_browser():
     webbrowser.open_new_tab("https://github.com/TheInfani/Saper_kursach")
 
 # таблица рекордов (очки, время прохождения, сложность, размер, количество мин)      очки = (количество мин * слоность * размер поля) / (время прохождения / (количество мин * сложность))
+
+
 records_data = [
     [4348, 23, 5, 10, 20]
 ]
@@ -556,6 +558,7 @@ def load_records():
     try:
         with open("records.json", "r", encoding='utf-8') as f:
             records_data = json.load(f)
+        records_data.sort(key=lambda x: x[0], reverse=True)
     except Exception:
         pass
 
