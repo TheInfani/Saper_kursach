@@ -44,7 +44,7 @@ def pashalka():
 
 # Функция сохранения настроек в файл
 def save_audio_settings():
-    with open("audio_settings.txt", "w") as f:
+    with open("settings.txt", "w") as f:
         f.write(f"{music_vol}\n{sfx_vol}") 
  
 pygame.mixer.init()
@@ -111,7 +111,7 @@ def update_timer():
             return
 
     timer -= 1
-    timer_label.configure(text=f"Время: {timer}")
+    timer_label.configure(text=f"Час: {timer}")
 
     root.timer_id = root.after(1000, update_timer)
 
@@ -253,13 +253,13 @@ counters_frame = ctk.CTkFrame(top_info_frame, fg_color="transparent")
 counters_frame.pack(side=tk.TOP)
 
 # Текст с флажками
-mins_label = ctk.CTkLabel(counters_frame, text="Откройте первую клетку", font=("Arial", 12))
+mins_label = ctk.CTkLabel(counters_frame, text="Відкрийте першу клітинку", font=("Arial", 12))
 mins_label.pack(side=tk.LEFT, padx=15)
 
 if is_timer_on == 1:
-    timer_text = f"Время: {timer}"
+    timer_text = f"Час: {timer}"
 else:
-    timer_text = "Время: не установлено"
+    timer_text = "Час: не встановлено"
 
 # Текст таймера
 timer_label = ctk.CTkLabel(counters_frame, text=timer_text, font=("Arial", 12))
@@ -281,7 +281,7 @@ def kva(stor, kolv_str, kolv_stbl, colors):
         y2 = y2 + stor + 1
 
 # Текст инструкции
-instr_label = ctk.CTkLabel(top_info_frame, text="Вы можете нажать \"S\" на клавиатуре во время игры, для смены настроек", font=("Arial", 12), text_color="gray")
+instr_label = ctk.CTkLabel(top_info_frame, text="Ви можете натиснути \"S\" на клавіатурі під час гри, для зміни налаштувань", font=("Arial", 12), text_color="gray")
 instr_label.pack(side=tk.BOTTOM, padx=15)
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
@@ -433,7 +433,7 @@ def open_cell(x, y):
         matrix_flag[y-1][x-1] = 0
         global min_count
         min_count += 1
-        mins_label.configure(text=f"Флажков: {min_count}")
+        mins_label.configure(text=f"Прапорів: {min_count}")
         
     # Открытие клетки
     matrix_open[y-1][x-1] = 1
@@ -474,7 +474,7 @@ def scan():
                     if matrix[j-1][i-1] == 1:
                         min_count -= 1
                     matrix[j-1][i-1] = 0
-        mins_label.configure(text=f"Флажков: {min_count}")
+        mins_label.configure(text=f"Прапорів: {min_count}")
         first_click = 1
         if is_timer_on == 1:
             update_timer()
@@ -492,14 +492,14 @@ def flag(ncol=ncol, nrow=nrow):
         draw_text(ncol, nrow, "🚩")
         matrix_flag[nrow-1][ncol-1] = 1
         min_count -= 1
-        mins_label.configure(text=f"Флажков: {min_count}") # Обновление текста с количеством флажков
+        mins_label.configure(text=f"Прапорів: {min_count}") # Обновление текста с количеством прапоров
     elif matrix_flag[nrow-1][ncol-1] == 1 and matrix_open[nrow-1][ncol-1] == 0:
             x1 = ncol * (cell_size + 1) - cell_size + 1
             y1 = nrow * (cell_size + 1) - cell_size + 1
             canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
             matrix_flag[nrow-1][ncol-1] = 0
             min_count += 1
-            mins_label.configure(text=f"Флажков: {min_count}")
+            mins_label.configure(text=f"Прапорів: {min_count}")
 
 # Экран победы
 def show_win_window():
@@ -511,16 +511,16 @@ def show_win_window():
     if hasattr(root, 'start_timer_id'):
         root.after_cancel(root.start_timer_id)
     win = ctk.CTkToplevel(root)
-    win.title("Победа!")
+    win.title("Перемога!")
     win.geometry("300x180")
     win.attributes('-topmost', True)
     win.resizable(False, False)
     
     game_points = round(start_min_count * difficult * ((rows + cols)/2) / (start_timer / (start_min_count * difficult)))
-    label = ctk.CTkLabel(win,text=f"Вы победили!\nСчёт: {game_points}",font=("Arial", 14, "bold"))
+    label = ctk.CTkLabel(win,text=f"Ви перемогли!\nРахунок: {game_points}",font=("Arial", 14, "bold"))
     label.pack(expand=True)
     add_record(game_points)
-    win_btn = ctk.CTkButton(win, text="Новая игра", width=10, command=lambda:restart(win))
+    win_btn = ctk.CTkButton(win, text="Нова гра", width=10, command=lambda:restart(win))
     win_btn.pack(side=tk.BOTTOM, pady=10)
     
     # Блокировка основного окна при открытии окна поражения
@@ -548,14 +548,14 @@ def show_lose_window(lose_from_min=True):
     if hasattr(root, 'start_timer_id'):
         root.after_cancel(root.start_timer_id)
     lose = ctk.CTkToplevel(root)
-    lose.title("Поражение!")
+    lose.title("Поразка!")
     lose.geometry("300x150")
     lose.attributes('-topmost', True)
     lose.resizable(False, False)
     if lose_from_min:
-        label = ctk.CTkLabel(lose, text="💀 ВЫ ПРОИГРАЛИ 💀", font=("Arial", 14, "bold"))
+        label = ctk.CTkLabel(lose, text="💀 ВИ ПРОГРАЛИ 💀", font=("Arial", 14, "bold"))
     else:
-        label = ctk.CTkLabel(lose, text="⌛ВРЕМЯ ВЫШЛО⌛", font=("Arial", 14, "bold"))
+        label = ctk.CTkLabel(lose, text="⌛ЧАС ВИЙШОВ⌛", font=("Arial", 14, "bold"))
     label.pack(expand=True)
     open_all_mines()
     
@@ -585,7 +585,7 @@ def open_all_flags():
                 draw_text(i+1, j+1, "🚩")
                 matrix_flag[j][i] = 1
                 min_count -= 1
-                mins_label.configure(text=f"Флажков: {min_count}")
+                mins_label.configure(text=f"Прапорів: {min_count}")
                 
 def open_all_unflagged():
     global min_count, nrow, ncol
@@ -618,7 +618,7 @@ def add_record(points):
     r_size = rows
     r_time = start_timer - timer
     r_mine = start_min_count
-    record_name = f"Очки: {points}  Время (секунды): {r_time}\nСложность: {r_diff}  Размер поля: {r_size}  Мин: {r_mine}"
+    record_name = f"Очок: {points}  Час (секунди): {r_time}\nСкладність: {r_diff}  Розмір поля: {r_size}  Мін: {r_mine}"
     records_data.append([points, r_time, r_diff, r_size, r_mine])
     save_records()
 
@@ -636,14 +636,14 @@ def debug():
             matrix_table += str(cell) + "   " 
         matrix_table += "\n"
         
-    label_name = ctk.CTkLabel(debug_win, text="Стартовая матрица мин", font=("Arial", 16, "bold"))
+    label_name = ctk.CTkLabel(debug_win, text="Стартова матриця мін", font=("Arial", 16, "bold"))
     label_name.pack(side=tk.TOP, pady=25)
     label = ctk.CTkLabel(debug_win, text=matrix_table, font=("Arial", 12, "bold"))
     label.pack(expand=True, padx=25, pady=25)
     
-    button1 = ctk.CTkButton(debug_win, text="Открыть всё", width=10, command=open_all_unflagged)
+    button1 = ctk.CTkButton(debug_win, text="Відкрити все", width=10, command=open_all_unflagged)
     button1.pack(side=tk.BOTTOM, pady=10)
-    button = ctk.CTkButton(debug_win, text="Установить флажки", width=10, command=open_all_flags)
+    button = ctk.CTkButton(debug_win, text="Встановити прапори", width=10, command=open_all_flags)
     button.pack(side=tk.BOTTOM, pady=10)
     
 
@@ -655,7 +655,7 @@ center_frame = ctk.CTkFrame(frame_bottom, fg_color="transparent")
 center_frame.pack(expand=True)
 
 # Кнопка влево
-tk_button_left = ClassButton(center_frame, text="Left", command=mleft)
+tk_button_left = ClassButton(center_frame, text="←", command=mleft)
 tk_button_left.pack(side=tk.LEFT, padx=1)
 
 # Фрейм под кнопки Up и Down
@@ -663,23 +663,23 @@ frame_ud = ctk.CTkFrame(center_frame, fg_color="transparent")
 frame_ud.pack(side=tk.LEFT, padx=1)
 
 # Кнопка вверх
-tk_button_up = ClassButton(frame_ud, text="Up", command=mup)
+tk_button_up = ClassButton(frame_ud, text="↑", command=mup)
 tk_button_up.pack(side=tk.TOP, padx=1)
 
 # Кнопка вниз
-tk_button_down = ClassButton(frame_ud, text="Down", command=mdown)
+tk_button_down = ClassButton(frame_ud, text="↓", command=mdown)
 tk_button_down.pack(side=tk.BOTTOM, padx=1)
 
 # Кнопка вправо
-tk_button_right = ClassButton(center_frame, text="Right", command=mright)
+tk_button_right = ClassButton(center_frame, text="→", command=mright)
 tk_button_right.pack(side=tk.LEFT, padx=1)
 
 # Кнопка открыть
-tk_button_open = ClassButton(center_frame, text="Open", command=scan)
+tk_button_open = ClassButton(center_frame, text="Відкрити", command=scan)
 tk_button_open.pack(side=tk.LEFT, padx=20)
 
 # Кнопка флажка
-tk_button_flag = ClassButton(center_frame, text="Flag", command=flag)
+tk_button_flag = ClassButton(center_frame, text="Прапор", command=lambda: flag(ncol, nrow))
 tk_button_flag.pack(side=tk.LEFT, padx=1)            
 
 root.mainloop()
