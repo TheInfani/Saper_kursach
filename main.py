@@ -607,19 +607,41 @@ def load_records():
     
 # Функции для сохранения рекордов
 def save_records():
-    global presets_data
+    global records_data
     with open("records.json", "w", encoding='utf-8') as f:
         json.dump(records_data, f, ensure_ascii=False, sort_keys=False)
 
+
 def add_record(points):
     load_records()
-    global start_timer, min_count
+    global start_timer, difficult, rows, start_min_count, timer
+    
     r_diff = difficult
     r_size = rows
     r_time = start_timer - timer
     r_mine = start_min_count
-    record_name = f"Очок: {points}  Час (секунди): {r_time}\nСкладність: {r_diff}  Розмір поля: {r_size}  Мін: {r_mine}"
-    records_data.append([points, r_time, r_diff, r_size, r_mine])
+    
+    # Ищем рекорд с такими же параметрами (сложность и размер)
+    existing_record = None
+    for record in records_data:
+        if record[2] == r_diff and record[3] == r_size:
+            existing_record = record
+            break
+    
+    # Если есть существующий рекорд
+    if existing_record is not None:
+        existing_points = existing_record[0]
+        
+        # Проверяем лучше ли новый результат
+        if points > existing_points:
+            # Новый результат лучше - удаляем старый
+            records_data.remove(existing_record)
+            records_data.append([points, r_time, r_diff, r_size, r_mine])
+        # Если новый результат хуже - ничего не делаем
+    else:
+        # Рекорда нет - добавляем новый
+        records_data.append([points, r_time, r_diff, r_size, r_mine])
+    
     save_records()
 
 # ФУНКЦИЯ ОКНА ОТЛАДКИ  
