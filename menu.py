@@ -28,6 +28,7 @@ def load_audio_settings():
                 sfx_vol = float(lines[1].strip())
                 button_visible = lines[2].strip() == "True" # Читаем как строку и преобразуем в булево значение
                 theme_color = lines[3].strip() # light,dark или system
+                set_cell_colors() # Устанавливаем цвета клеток в зависимости от темы
         except Exception:
             pass
 
@@ -50,8 +51,15 @@ rows = 10 # Количество строк
 cols = 10 # Количество колонок
 difficult = 1 # Сложность
 cell_size = 50 # Размер клетки
-cell_def_color = "#474747" # Цвет клеток
-cell_open_color = "#CDCDCD" # Цвет чистой клетки
+def set_cell_colors():
+    global cell_def_color, cell_open_color
+    if theme_color == "light":
+        cell_def_color = "#A9A9A9" # Цвет клеток
+        cell_open_color = "#F6F6F6" # Цвет чистой клетки
+    else:
+        cell_def_color = "#474747" # Цвет клеток
+        cell_open_color = "#CDCDCD" # Цвет чистой клетки
+set_cell_colors()
 cell_outline_color = "#0006bd" # Цвет активной обводки
 flag_color = "#0c8628" # Цвет флага
 timer = 0 # таймер сеунд на прохождение игры
@@ -62,23 +70,25 @@ ctk.set_default_color_theme("dark-blue") # Глобальная цветовая
 ctk.deactivate_automatic_dpi_awareness()
 
 class ClassButton(ctk.CTkButton):
-    def __init__(self, master, text, command):
-        
+    def __init__(self, master, text, command,
+                 fg_color=("#D9D8D8", "#515151"),
+                 hover_color=("#BABABA", "#373737")):
+
         def command_with_sound():
             snd_open.play()
             command()
-            
+
         super().__init__(
-            master=master,             # root
-            text=text,                 # Текст на кнопке
+            master=master,              # root
+            text=text,                  # Текст на кнопке
             command=command_with_sound, # Функция при нажатии
             width=110,                  # Ширина
-            height=25,                 # Высота
-            fg_color=("#D9D8D8", "#515151"), # Цвет кнопки 
-            hover_color=("#BABABA", "#373737"), # Цвет кнопки при наведении
+            height=25,                  # Высота
+            fg_color=fg_color,          # Цвет кнопки
+            hover_color=hover_color,    # Цвет кнопки при наведении
             text_color=("black", "white"), # Цвет текста
-            corner_radius=8,           # Закругленные углы
-            font=ctk.CTkFont(size=12) # Шрифт
+            corner_radius=8,            # Закругленные углы
+            font=ctk.CTkFont(size=12)   # Шрифт
         )
 
 class ErrorWindow(ctk.CTkToplevel):
@@ -524,6 +534,8 @@ def setting_window():
         theme_color = theme_var.get()
         save_audio_settings()
         ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
+        set_cell_colors() # Устанавливаем цвета клеток в зависимости от темы
+        
 
     chekboks_theme = ctk.CTkRadioButton(sett_w, text="Системна тема", variable=theme_var, value="system", command=on_theme_change)
     chekboks_theme.pack(pady=6)
@@ -612,13 +624,13 @@ def win_select_mode():
     select.resizable(False, False)
     label =ctk.CTkLabel(select, text="Сапёр Офлайн", font=("Arial", 16, "bold"))
     label.pack(pady=15)
-    single_btn = ClassButton(select, text="Почати гру", command=lambda: [select.destroy(),destroy_st(),single_st(),destroy_rec()])
+    single_btn = ClassButton(select, text="Почати гру", fg_color=("#4CAF50", "#2E7D32"), hover_color=("#66BB6A", "#388E3C"), command=lambda: [select.destroy(),destroy_st(),single_st(),destroy_rec()])
     single_btn.pack(pady=10)
-    github_btn = ClassButton(select, text="GitHub проекту", command=open_browser)
+    github_btn = ClassButton(select, text="GitHub проекту", fg_color=("#D6D6D6", "#8A8A8A"), hover_color=("#C0C0C0", "#707070"), command=open_browser)
     github_btn.pack(pady=10)
-    settings_btn = ClassButton(select, text="Налаштування", command=setting_window)
+    settings_btn = ClassButton(select, text="Налаштування", fg_color=("#9E9E9E", "#5F5F5F"), hover_color=("#B0B0B0", "#707070"), command=setting_window)
     settings_btn.pack(pady=10)
-    rec_btn = ClassButton(select, text="Рекорди", command=records_window)
+    rec_btn = ClassButton(select, text="Рекорди", fg_color=("#42A5F5", "#1565C0"), hover_color=("#64B5F6", "#1976D2"), command=records_window)
     rec_btn.pack(pady=10)
     select.protocol("WM_DELETE_WINDOW", lambda: root.destroy())
 
