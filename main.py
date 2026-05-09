@@ -382,11 +382,12 @@ def draw_text(col, row, char):
     x = (col * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
     y = (row * (cell_size + 1) - cell_size + 1) + (cell_size / 2)
     if char == "💣":
-        x1 = ncol * (cell_size + 1) - cell_size + 1
-        y1 = nrow * (cell_size + 1) - cell_size + 1
-        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill=cell_def_color)
-        color = "darkred"
+        x1 = col * (cell_size + 1) - cell_size + 1
+        y1 = row * (cell_size + 1) - cell_size + 1
+        canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, fill="#940808")
+        color = "black"
         canvas.create_text(x, y, text=str(char), font=("Segoe UI Emoji", num_size))
+        return
     elif char == "🚩":
         color = flag_color
     elif int(char) == 1:
