@@ -13,13 +13,14 @@ except ImportError:
     os.execl(sys.executable, sys.executable, *sys.argv)
     
 music_vol = 0.3
-sfx_vol = 0.5   
+sfx_vol = 0.5  
+extra_dpi = None # 1 - включено, 0 - отключено. Отключение автоматической адаптации к DPI, чтобы интерфейс не масштабировался на разных экранах 
 button_visible = None # Видимость кнопок управления, по умолчанию включены
 theme_color = None # light,dark или system
 
 # Функция загрузки настроек из файла
 def load_audio_settings():
-    global music_vol, sfx_vol, button_visible, theme_color
+    global music_vol, sfx_vol, button_visible, theme_color, extra_dpi
     if os.path.exists("settings.txt"): # Проверка наличия файла
         try:
             with open("settings.txt", "r") as f:
@@ -28,6 +29,7 @@ def load_audio_settings():
                 sfx_vol = float(lines[1].strip())
                 button_visible = lines[2].strip() == "True" # Читаем как строку и преобразуем в булево значение
                 theme_color = lines[3].strip() # light,dark или system
+                extra_dpi = lines[4].strip() == "True" # 1 - включено, 0 - отключено
                 set_cell_colors() # Устанавливаем цвета клеток в зависимости от темы
         except Exception:
             pass
@@ -35,7 +37,7 @@ def load_audio_settings():
 # Функция сохранения настроек в файл
 def save_audio_settings():
     with open("settings.txt", "w") as f:
-        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}\n{theme_color}") 
+        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}\n{theme_color}\n{extra_dpi}") 
  
 pygame.mixer.init()
 load_audio_settings()
@@ -67,7 +69,8 @@ timer = 0 # таймер сеунд на прохождение игры
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
-ctk.deactivate_automatic_dpi_awareness()
+if extra_dpi == 0:
+     ctk.deactivate_automatic_dpi_awareness() # Отключение автоматической адаптации к DPI, чтобы интерфейс не масштабировался на разных экранах
 
 class ClassButton(ctk.CTkButton):
     def __init__(self, master, text, command,
@@ -472,10 +475,10 @@ def window_presets_del():
 root.withdraw() # Прячем "Родительское" меню
 
 def setting_window():
-    global sett_w, root
+    global sett_w, root, extra_dpi
     sett_w = ctk.CTkToplevel(root)
     sett_w.title("Налаштування")
-    sett_w.geometry("350x600")
+    sett_w.geometry("350x650")
     sett_w.resizable(False, False)
     sett_w.attributes('-topmost', True)
     
@@ -535,7 +538,18 @@ def setting_window():
         save_audio_settings()
         ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
         set_cell_colors() # Устанавливаем цвета клеток в зависимости от темы
-        
+    
+    #включення відключения автоматичної адаптації к DPI
+    dpi_var = ctk.BooleanVar(value=extra_dpi) # Надо ибо чекбокс не работает с дефф булианами
+    def on_check():
+        global extra_dpi
+        extra_dpi = dpi_var.get()
+        save_audio_settings()
+    
+    chekboks_dpi = ctk.CTkCheckBox(sett_w, text="Включити автоматичну адаптацію до DPI", variable=dpi_var, onvalue=True, offvalue=False, command=on_check)
+    chekboks_dpi.pack(pady=6)
+    label = ctk.CTkLabel(sett_w, text="Зміниться після перезавантаження", font=("Arial", 12), text_color="gray")
+    label.pack(pady=5)
 
     chekboks_theme = ctk.CTkRadioButton(sett_w, text="Системна тема", variable=theme_var, value="system", command=on_theme_change)
     chekboks_theme.pack(pady=6)

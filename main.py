@@ -86,7 +86,9 @@ root.protocol("WM_DELETE_WINDOW", lambda: restart(root))
 ctk.set_appearance_mode(theme_color) # Глобальная тема зависящая от системных настроек
 ctk.set_default_color_theme("dark-blue") # Глобальная цветовая тема
 
-ctk.deactivate_automatic_dpi_awareness() # Отключение автоматической адаптации к DPI, чтобы интерфейс не масштабировался на разных экранах
+if extra_dpi == 1:
+     ctk.deactivate_automatic_dpi_awareness() # Отключение автоматической адаптации к DPI, чтобы интерфейс не масштабировался на разных экранах
+
 
 try:
     if int(timer) > 0:
@@ -671,38 +673,39 @@ def debug():
     
 
 # КНОПКИ
-frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
-frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+if button_visible:
+    frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
+    frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
-center_frame = ctk.CTkFrame(frame_bottom, fg_color="transparent")
-center_frame.pack(expand=True)
+    center_frame = ctk.CTkFrame(frame_bottom, fg_color="transparent")
+    center_frame.pack(expand=True)
 
-# Кнопка влево
-tk_button_left = ClassButton(center_frame, text="←", command=mleft)
-tk_button_left.pack(side=tk.LEFT, padx=1)
+    # Кнопка влево
+    tk_button_left = ClassButton(center_frame, text="←", command=mleft)
+    tk_button_left.pack(side=tk.LEFT, padx=1)
 
-# Фрейм под кнопки Up и Down
-frame_ud = ctk.CTkFrame(center_frame, fg_color="transparent")
-frame_ud.pack(side=tk.LEFT, padx=1)
+    # Фрейм под кнопки Up и Down
+    frame_ud = ctk.CTkFrame(center_frame, fg_color="transparent")
+    frame_ud.pack(side=tk.LEFT, padx=1)
 
-# Кнопка вверх
-tk_button_up = ClassButton(frame_ud, text="↑", command=mup)
-tk_button_up.pack(side=tk.TOP, padx=1)
+    # Кнопка вверх
+    tk_button_up = ClassButton(frame_ud, text="↑", command=mup)
+    tk_button_up.pack(side=tk.TOP, padx=1)
 
-# Кнопка вниз
-tk_button_down = ClassButton(frame_ud, text="↓", command=mdown)
-tk_button_down.pack(side=tk.BOTTOM, padx=1)
+    # Кнопка вниз
+    tk_button_down = ClassButton(frame_ud, text="↓", command=mdown)
+    tk_button_down.pack(side=tk.BOTTOM, padx=1)
 
-# Кнопка вправо
-tk_button_right = ClassButton(center_frame, text="→", command=mright)
-tk_button_right.pack(side=tk.LEFT, padx=1)
+    # Кнопка вправо
+    tk_button_right = ClassButton(center_frame, text="→", command=mright)
+    tk_button_right.pack(side=tk.LEFT, padx=1)
 
-# Кнопка открыть
-tk_button_open = ClassButton(center_frame, text="Відкрити", command=scan)
-tk_button_open.pack(side=tk.LEFT, padx=20)
+    # Кнопка открыть
+    tk_button_open = ClassButton(center_frame, text="Відкрити", command=scan)
+    tk_button_open.pack(side=tk.LEFT, padx=20)
 
-# Кнопка флажка
-tk_button_flag = ClassButton(center_frame, text="Прапор", command=lambda: flag(ncol, nrow))
-tk_button_flag.pack(side=tk.LEFT, padx=1)            
+    # Кнопка флажка
+    tk_button_flag = ClassButton(center_frame, text="Прапор", command=lambda: flag(ncol, nrow))
+    tk_button_flag.pack(side=tk.LEFT, padx=1)            
 
 root.mainloop()
