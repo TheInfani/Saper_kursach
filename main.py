@@ -45,7 +45,7 @@ def pashalka():
 # Функция сохранения настроек в файл
 def save_audio_settings():
     with open("settings.txt", "w") as f:
-        f.write(f"{music_vol}\n{sfx_vol}") 
+        f.write(f"{music_vol}\n{sfx_vol}\n{button_visible}\n{theme_color}\n{extra_dpi}")
  
 pygame.mixer.init()
 load_audio_settings()
@@ -72,7 +72,7 @@ theme_color = settings[10] # light,dark или system
 
 first_click = 0 # Проверка первого клика
 min_count = 0 # Количество мин
-start_timer = 0 # Изначальное значение таймера
+start_timer = 1 # Изначальное значение таймера
 
 # Видимость кнопок управления
 if button_visible:
@@ -331,7 +331,7 @@ def mright():
     global nrow, ncol
     
     snd_open.play()
-    if ncol < 10:
+    if ncol < cols:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
         canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
@@ -365,7 +365,7 @@ def mdown():
     global nrow, ncol
     
     snd_open.play()
-    if nrow < 10:
+    if nrow < rows:
         x1 = ncol * (cell_size + 1) - cell_size + 1
         y1 = nrow * (cell_size + 1) - cell_size + 1
         canvas.create_rectangle(x1, y1, x1 + cell_size, y1 + cell_size, outline="black", width=1)
@@ -506,7 +506,10 @@ def flag(ncol=ncol, nrow=nrow):
 
 # Экран победы
 def show_win_window():
-    global win
+    global win, isInGame
+    if not isInGame:
+        return
+    isInGame = False
     pygame.mixer.music.stop()
     snd_win.play()
     if is_timer_on == 1 and hasattr(root, 'timer_id'):
@@ -621,7 +624,7 @@ def add_record(points):
     
     r_diff = difficult
     r_size = rows
-    r_time = start_timer - timer
+    r_time = start_timer
     r_mine = start_min_count
     
     # Ищем рекорд с такими же параметрами (сложность и размер)
