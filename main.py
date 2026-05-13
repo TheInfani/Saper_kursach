@@ -609,7 +609,7 @@ def load_records():
         with open("records.json", "r", encoding='utf-8') as f:
             records_data = json.load(f)
     except Exception:
-        pass
+        records_data = []
     
 # Функции для сохранения рекордов
 def save_records():
