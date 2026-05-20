@@ -1,89 +1,88 @@
-# **Сапёр с багами, ну вы вдумайтесь**
+# Buggy Minesweeper — Seriously, just think about it
 
-# Инструкция по развертыванию проекта Saper_kursach
+## Saper_kursach Project Deployment Guide
 
-Краткое практическое руководство по клонированию репозитория и настройке изолированного виртуального окружения (Python venv).
+A short practical guide for cloning the repository and setting up an isolated Python virtual environment (`venv`).
 
-## Предварительные требования
+### Prerequisites
 
-* **Git** (скачать с [git-scm.com](https://git-scm.com/))
-* **Python 3.x** (скачать с [python.org](https://www.python.org/))
+* Git (download from [git-scm.com](https://git-scm.com?utm_source=chatgpt.com))
+* Python 3.x (download from [python.org](https://www.python.org?utm_source=chatgpt.com))
+
+> Note: All required dependencies are installed automatically by the code itself, so there is no need to manually install requirements.
 
 ---
 
-## Пошаговая настройка
+## Step-by-Step Setup
 
-### 1. Клонирование репозитория
+### 1. Clone the Repository
 
-Откройте терминал (или командную строку) и выполните:
+Open a terminal (or command prompt) and run:
 
 ```bash
 git clone https://github.com/TheInfani/Saper_kursach.git
-
-```
-
-### 2. Переход в рабочую директорию
-
-```bash
-cd Saper_kursach
-
-```
-
-### 3. Создание виртуального окружения
-
-Создайте изолированную среду с именем `venv`:
-
-```bash
-python -m venv venv
-
-```
-
-### 4. Активация виртуального окружения
-
-Активируйте среду в зависимости от вашей операционной системы:
-
-* **Windows (Command Prompt):**
-```cmd
-venv\Scripts\activate.bat
-
-```
-
-
-* **Windows (PowerShell):**
-```powershell
-venv\Scripts\Activate.ps1
-
-```
-
-
-* **macOS / Linux:**
-```bash
-source venv/bin/activate
-
-```
-
-
-
-> После успешной активации в начале строки терминала появится индикатор `(venv)`.
-
-
-
-### 5. Запуск приложения
-
-Запустите основной скрипт проекта (обычно это `main.py` или `index.py`):
-
-```bash
-python main.py
-
 ```
 
 ---
 
-## Деактивация окружения
+### 2. Navigate to the Project Directory
 
-После завершения работы отключите виртуальное окружение командой:
+```bash
+cd Saper_kursach
+```
+
+---
+
+### 3. Create a Virtual Environment
+
+Create an isolated environment named `venv`:
+
+```bash
+python -m venv venv
+```
+
+---
+
+### 4. Activate the Virtual Environment
+
+Activate the environment depending on your operating system:
+
+#### Windows (Command Prompt)
+
+```bash
+venv\Scripts\activate.bat
+```
+
+#### Windows (PowerShell)
+
+```bash
+venv\Scripts\Activate.ps1
+```
+
+#### macOS / Linux
+
+```bash
+source venv/bin/activate
+```
+
+After successful activation, you should see `(venv)` at the beginning of your terminal line.
+
+---
+
+### 5. Run the Application
+
+Run the main project script (usually `main.py` or `index.py`):
+
+```bash
+python main.py
+```
+
+---
+
+## Deactivating the Environment
+
+When you are done working with the project, deactivate the virtual environment with:
 
 ```bash
 deactivate
-
 ```
