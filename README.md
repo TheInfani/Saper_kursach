@@ -59,12 +59,6 @@ venv\Scripts\activate.bat
 venv\Scripts\Activate.ps1
 ```
 
-### Linux Virtual Environment Activation
-
-```bash
-source venv/bin/activate
-```
-
 #### macOS / Linux
 
 ```bash
