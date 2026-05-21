@@ -1,11 +1,11 @@
-import tkinter as tk
-from tkinter import colorchooser
 import webbrowser
 import os
 import sys
 import json
 try:
     import customtkinter as ctk
+    import CTkColorPicker
+    from CTkColorPicker import *
     import pygame
     from PIL import Image, ImageTk, ImageSequence
 except ImportError:
@@ -161,7 +161,7 @@ def tryy():
 # По хорошему переписать одной функцией, но что-то не хочу
 def choose_color():
     global cell_def_color
-    color = colorchooser.askcolor()[1]
+    color = AskColor().get()
     if color:
         cell_def_color = color
     print(cell_def_color)
@@ -169,7 +169,7 @@ def choose_color():
 
 def choose_color2():
     global cell_open_color
-    color = colorchooser.askcolor()[1]
+    color = AskColor().get()
     if color:
         cell_open_color = color
     print(cell_open_color)
@@ -177,7 +177,7 @@ def choose_color2():
 
 def choose_color3():
     global cell_outline_color
-    color = colorchooser.askcolor()[1]
+    color = AskColor().get()
     if color:
         cell_outline_color = color
     print(cell_outline_color)
@@ -185,7 +185,7 @@ def choose_color3():
     
 def choose_color4():
     global flag_color
-    color = colorchooser.askcolor()[1]
+    color = AskColor().get()
     if color:
         flag_color = color
     print(flag_color)
@@ -269,11 +269,11 @@ load_presets() # Загружаем пресеты при запуске
 
 # Функция для применения пресета
 def apply_preset(p_size, p_diff, p_cell):
-    size.delete(0, tk.END)
+    size.delete(0, ctk.END)
     size.insert(0, p_size)
-    difficultf.delete(0, tk.END)
+    difficultf.delete(0, ctk.END) 
     difficultf.insert(0, p_diff)
-    size_cell.delete(0, tk.END)
+    size_cell.delete(0, ctk.END)
     size_cell.insert(0, p_cell)
     tryy() # Обновляем предпросмотр
             
@@ -365,7 +365,7 @@ def menu():
     label =ctk.CTkLabel(frame_right, text="Попередній перегляд поля", font=("Arial", 16, "bold"))
     label.pack(pady=10)
     global canvas
-    canvas = tk.Canvas(frame_right, width=280, height=200, bg="#929292", highlightthickness=0, borderwidth=0)
+    canvas = ctk.CTkCanvas(frame_right, width=280, height=200, bg="#929292", highlightthickness=0, borderwidth=0)
     canvas.pack(pady=20)
 
     # Кнопка и надпись справа
@@ -374,10 +374,10 @@ def menu():
     label = ctk.CTkLabel(frame_right, text="Вводьте значення в форматі\n цілих чисел без одиниць виміру", font=("Arial", 14), text_color="red")
     label.pack(pady=10)
     btn_try = ClassButton(frame_right, text="Випробувати", command=tryy)
-    btn_try.pack(side=tk.BOTTOM, pady=10) # ВНИМАНИЕ ЯРИК!!! PADY ЭТО ОТСТУП ПО Y, PADX ПО X. ВРОДЕ ЛОГИЧНО НО ЧТО-ТО НЕ ПОНЯТНО.
+    btn_try.pack(side=ctk.BOTTOM, pady=10) # ВНИМАНИЕ ЯРИК!!! PADY ЭТО ОТСТУП ПО Y, PADX ПО X. ВРОДЕ ЛОГИЧНО НО ЧТО-ТО НЕ ПОНЯТНО.
     if game_mode == 'single':
         btn_start = ClassButton(frame_right, text="Старт", command=start)
-        btn_start.pack(side=tk.BOTTOM, pady=10) 
+        btn_start.pack(side=ctk.BOTTOM, pady=10) 
     
     # Фрейм пресетов настроек
     frame_presets = ctk.CTkFrame(root, width=300, height=670, fg_color="transparent", border_width=0, corner_radius=0)
@@ -415,7 +415,7 @@ def menu():
 
     # Фрейм удаления пресетов
     frame_del_btn = ctk.CTkFrame(frame_presets, width=300, height=30, fg_color="transparent", border_width=0, corner_radius=0)
-    frame_del_btn.pack(side=tk.BOTTOM, pady=5, padx=25)
+    frame_del_btn.pack(side=ctk.BOTTOM, pady=5, padx=25)
     frame_del_btn.pack_propagate(False)
     
     del_btn = ctk.CTkButton(frame_del_btn, text="Меню видалення пресетів", command=window_presets_del, width=250, fg_color="#A30000", hover_color="#7A0000")
@@ -423,11 +423,11 @@ def menu():
     
     # Кнопка добавления пресета
     add_button = ctk.CTkButton(frame_presets, text="Додати свій пресет", command=add_preset, width=250)
-    add_button.pack(side=tk.BOTTOM, pady=5)
+    add_button.pack(side=ctk.BOTTOM, pady=5)
     
     p_name = ctk.CTkEntry(frame_presets, width=250)
     p_name.insert(0, "Назва пресету")
-    p_name.pack(side=tk.BOTTOM, pady=5) 
+    p_name.pack(side=ctk.BOTTOM, pady=5) 
     
 def refresh_scroll():
     global scroll_del_frame

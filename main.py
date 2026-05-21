@@ -1,8 +1,6 @@
 import random
-import tkinter as tk
 import os
 import sys
-from tkinter import *
 from menu import *
 import math
 import customtkinter as ctk
@@ -249,14 +247,14 @@ root.bind('<Key>', keypres)
 
 # ОТРИСОВКА БАЗОВОГО ПОЛЯ
 top_info_frame = ctk.CTkFrame(root, fg_color="transparent")
-top_info_frame.pack(side=tk.TOP, pady=5, fill=tk.X)
+top_info_frame.pack(side=ctk.TOP, pady=5, fill=ctk.X)
 
 counters_frame = ctk.CTkFrame(top_info_frame, fg_color="transparent")
-counters_frame.pack(side=tk.TOP)
+counters_frame.pack(side=ctk.TOP)
 
 # Текст с флажками
 mins_label = ctk.CTkLabel(counters_frame, text="Відкрийте першу клітинку", font=("Arial", 12))
-mins_label.pack(side=tk.LEFT, padx=15)
+mins_label.pack(side=ctk.LEFT, padx=15)
 
 if is_timer_on == 1:
     timer_text = f"Час: {timer}"
@@ -265,7 +263,7 @@ else:
 
 # Текст таймера
 timer_label = ctk.CTkLabel(counters_frame, text=timer_text, font=("Arial", 12))
-timer_label.pack(side=tk.LEFT, padx=15)
+timer_label.pack(side=ctk.LEFT, padx=15)
 
 def kva(stor, kolv_str, kolv_stbl, colors):
     x1 = 0
@@ -284,7 +282,7 @@ def kva(stor, kolv_str, kolv_stbl, colors):
 
 # Текст инструкции
 instr_label = ctk.CTkLabel(top_info_frame, text="Ви можете натиснути \"S\" на клавіатурі під час гри, для зміни налаштувань", font=("Arial", 12), text_color="gray")
-instr_label.pack(side=tk.BOTTOM, padx=15)
+instr_label.pack(side=ctk.BOTTOM, padx=15)
 
 # СКАНИРОВАНИЕ ВОКРУГ  КЛЕТКИ, 1 ЦИФРА
 def know(x, y):
@@ -527,7 +525,7 @@ def show_win_window():
     label.pack(expand=True)
     add_record(game_points)
     win_btn = ctk.CTkButton(win, text="Нова гра", width=10, command=lambda:restart(win))
-    win_btn.pack(side=tk.BOTTOM, pady=10)
+    win_btn.pack(side=ctk.BOTTOM, pady=10)
     
     # Блокировка основного окна при открытии окна поражения
     win.grab_set()
@@ -566,7 +564,7 @@ def show_lose_window(lose_from_min=True):
     open_all_mines()
     
     btn_menu = ctk.CTkButton(lose, text="В меню", width=10, command=lambda: restart(lose))
-    btn_menu.pack(side=tk.BOTTOM, pady=10)
+    btn_menu.pack(side=ctk.BOTTOM, pady=10)
 
     # Блокировка основного окна при открытии окна поражения
     lose.grab_set()
@@ -665,50 +663,50 @@ def debug():
         matrix_table += "\n"
         
     label_name = ctk.CTkLabel(debug_win, text="Стартова матриця мін", font=("Arial", 16, "bold"))
-    label_name.pack(side=tk.TOP, pady=25)
+    label_name.pack(side=ctk.TOP, pady=25)
     label = ctk.CTkLabel(debug_win, text=matrix_table, font=("Arial", 12, "bold"))
     label.pack(expand=True, padx=25, pady=25)
     
     button1 = ctk.CTkButton(debug_win, text="Відкрити все", width=10, command=open_all_unflagged)
-    button1.pack(side=tk.BOTTOM, pady=10)
-    button = ctk.CTkButton(debug_win, text="Встановити прапори", width=10, command=open_all_flags)
-    button.pack(side=tk.BOTTOM, pady=10)
+    button1.pack(side=ctk.BOTTOM, pady=10)
+    button = ctk.CTkButton(debug_win, text="Встановити прапори", fg_color="#4CAF50", hover_color="#45A049", width=10, command=open_all_flags)
+    button.pack(side=ctk.BOTTOM, pady=10)
     
 
 # КНОПКИ
 if button_visible:
     frame_bottom = ctk.CTkFrame(root, fg_color="transparent")
-    frame_bottom.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+    frame_bottom.pack(side=ctk.BOTTOM, fill=ctk.X, pady=10)
 
     center_frame = ctk.CTkFrame(frame_bottom, fg_color="transparent")
     center_frame.pack(expand=True)
 
     # Кнопка влево
     tk_button_left = ClassButton(center_frame, text="←", command=mleft)
-    tk_button_left.pack(side=tk.LEFT, padx=1)
+    tk_button_left.pack(side=ctk.LEFT, padx=1)
 
     # Фрейм под кнопки Up и Down
     frame_ud = ctk.CTkFrame(center_frame, fg_color="transparent")
-    frame_ud.pack(side=tk.LEFT, padx=1)
+    frame_ud.pack(side=ctk.LEFT, padx=1)
 
     # Кнопка вверх
     tk_button_up = ClassButton(frame_ud, text="↑", command=mup)
-    tk_button_up.pack(side=tk.TOP, padx=1)
+    tk_button_up.pack(side=ctk.TOP, padx=1)
 
     # Кнопка вниз
     tk_button_down = ClassButton(frame_ud, text="↓", command=mdown)
-    tk_button_down.pack(side=tk.BOTTOM, padx=1)
+    tk_button_down.pack(side=ctk.BOTTOM, padx=1)
 
     # Кнопка вправо
     tk_button_right = ClassButton(center_frame, text="→", command=mright)
-    tk_button_right.pack(side=tk.LEFT, padx=1)
+    tk_button_right.pack(side=ctk.LEFT, padx=1)
 
     # Кнопка открыть
     tk_button_open = ClassButton(center_frame, text="Відкрити", command=scan)
-    tk_button_open.pack(side=tk.LEFT, padx=20)
+    tk_button_open.pack(side=ctk.LEFT, padx=20)
 
     # Кнопка флажка
     tk_button_flag = ClassButton(center_frame, text="Прапор", command=lambda: flag(ncol, nrow))
-    tk_button_flag.pack(side=tk.LEFT, padx=1)            
+    tk_button_flag.pack(side=ctk.LEFT, padx=1)            
 
 root.mainloop()
